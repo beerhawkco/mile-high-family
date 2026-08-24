@@ -1,0 +1,175 @@
+---
+import ContentCard from "../components/ContentCard.astro";
+import Squiggle from "../components/Squiggle.astro";
+import WaveEdge from "../components/WaveEdge.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getAllPosts, guideList, topicList } from "../lib/content";
+import { photos } from "../lib/photos";
+
+const topics = topicList();
+const guides = guideList();
+const all = await getAllPosts();
+const weekend = all.filter((item) => item.post.data.weekend).slice(0, 3);
+const featured = all.filter((item) => item.post.data.featured).slice(0, 3);
+const rest = all
+  .filter((item) => !featured.some((pick) => pick.post.id === item.post.id && pick.collection === item.collection))
+  .slice(0, 4);
+
+const topicTilt = ["-rotate-2", "rotate-1", "-rotate-1", "rotate-2", "-rotate-2"] as const;
+const guideTilt = ["rotate-1", "-rotate-2", "rotate-2"] as const;
+---
+
+<BaseLayout
+  title="Home"
+  description="A Colorado site about camping, rockhounding, gymnastics, aviation, gaming, and Front Range days worth the drive."
+>
+  <section class="relative overflow-hidden text-white bg-hero">
+    <div class="blob -left-16 top-6 size-64 bg-sun/55"></div>
+    <div class="blob blob-2 -right-10 bottom-0 size-72 bg-cream/25"></div>
+    <div class="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 md:grid-cols-[1.05fr_0.95fr] md:py-20">
+      <div>
+        <p class="font-extrabold uppercase tracking-[0.22em] text-sun -rotate-1">Colorado adventures</p>
+        <h1 class="mt-4 max-w-xl -rotate-1 font-display text-[2.6rem] font-extrabold leading-[1.02] tracking-tight sm:text-6xl">
+          Days on the Front Range worth the drive.
+        </h1>
+        <Squiggle class="mt-3 text-sun -rotate-2" />
+        <p class="mt-6 max-w-lg rotate-1 text-lg leading-relaxed text-white/90">
+          Mile High Family covers camping, rocks, gymnastics, airplanes, and games — plus the trips around them.
+          Practical notes. Real places. No pitch for a particular kind of household.
+        </p>
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <a class="btn-curve bg-sun px-6 py-3 font-display text-lg font-extrabold text-navy no-underline shadow-lg shadow-sun/20" href="/adventures/">
+            Start with adventures
+          </a>
+          <a class="btn-curve-alt border-2 border-white/80 bg-white/10 px-6 py-3 font-display text-lg font-extrabold text-white no-underline" href="/about/">
+            About the site
+          </a>
+        </div>
+      </div>
+      <figure class="relative mx-auto max-w-md rotate-2 md:mx-0 md:max-w-none">
+        <img
+          src={photos.denverSkyline}
+          alt="Downtown Denver skyline with the Front Range behind it"
+          width="1600"
+          height="900"
+          class="photo-blob aspect-[5/4] w-full object-cover shadow-[0_18px_0_rgb(240_160_26_/_0.35)]"
+        />
+        <figcaption class="absolute bottom-6 left-8 right-10 rounded-[1.5rem_0.6rem_1.7rem_0.9rem] bg-cream/90 px-4 py-2 text-xs font-bold text-navy backdrop-blur">
+          Denver skyline · Wikimedia Commons
+        </figcaption>
+      </figure>
+    </div>
+    <WaveEdge fill="var(--bg)" variant="a" />
+  </section>
+
+  <section id="topics" class="bg-bg">
+    <div class="mx-auto max-w-6xl px-5 py-14">
+      <div class="max-w-xl -rotate-1">
+        <p class="eyebrow">Topics</p>
+        <h2 class="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink md:text-4xl">What the site is about</h2>
+        <Squiggle class="mt-2 text-sun" />
+      </div>
+      <div class="mt-10 flex flex-wrap items-stretch justify-center gap-4 md:gap-5">
+        {topics.map((topic, index) => (
+          <a
+            href={topic.path}
+            class:list={[
+              "squash group w-[min(100%,17rem)] bg-surface p-5 no-underline shadow-sm transition hover:-translate-y-1 hover:rotate-0",
+              topicTilt[index],
+            ]}
+          >
+            <p class="text-sm font-extrabold uppercase tracking-wide text-sun">{topic.eyebrow}</p>
+            <p class="mt-1 font-display text-2xl font-extrabold text-ink">{topic.label}</p>
+            <p class="mt-2 text-sm leading-relaxed text-muted">{topic.blurb}</p>
+            <p class="mt-4 text-sm font-extrabold text-sun">Open the notes →</p>
+          </a>
+        ))}
+      </div>
+    </div>
+    <WaveEdge fill="var(--bg2)" variant="b" />
+  </section>
+
+  {weekend.length > 0 && (
+    <section class="bg-bg2">
+      <div class="mx-auto max-w-6xl px-5 py-14">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div class="max-w-xl rotate-1">
+            <p class="eyebrow">This weekend</p>
+            <h2 class="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink md:text-4xl">Low-drama plans</h2>
+          </div>
+          <a class="btn-curve bg-bg px-4 py-2 font-extrabold text-ink no-underline ring-1 ring-ink/10" href="/fun/">
+            All fun things →
+          </a>
+        </div>
+        <div class="mt-10 flex flex-wrap justify-center gap-5">
+          {weekend.map(({ post, collection }) => (
+            <div class="w-[min(100%,20rem)]">
+              <ContentCard post={post} collection={collection} />
+            </div>
+          ))}
+        </div>
+      </div>
+      <WaveEdge fill="var(--bg)" variant="c" flip />
+    </section>
+  )}
+
+  <section class="bg-bg">
+    <div class="mx-auto max-w-6xl px-5 py-14">
+      <div class="max-w-xl -rotate-1">
+        <p class="eyebrow">Start here</p>
+        <h2 class="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink md:text-4xl">Featured notes</h2>
+      </div>
+      <div class="mt-10 grid gap-6">
+        {featured[0] && (
+          <ContentCard post={featured[0].post} collection={featured[0].collection} featured />
+        )}
+        <div class="flex flex-wrap justify-center gap-5">
+          {featured.slice(1).map(({ post, collection }) => (
+            <div class="w-[min(100%,22rem)] flex-1">
+              <ContentCard post={post} collection={collection} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+    <WaveEdge fill="var(--bg2)" variant="a" />
+  </section>
+
+  <section class="bg-bg2">
+    <div class="mx-auto max-w-6xl px-5 py-14">
+      <div class="max-w-xl rotate-1">
+        <p class="eyebrow">Guides</p>
+        <h2 class="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink md:text-4xl">Three ways in</h2>
+      </div>
+      <div class="mt-10 flex flex-wrap items-stretch justify-center gap-4">
+        {guides.map((item, index) => (
+          <a
+            href={item.path}
+            class:list={[
+              "squash-alt w-[min(100%,16.5rem)] bg-surface p-5 no-underline transition hover:-translate-y-1 hover:rotate-0",
+              guideTilt[index],
+            ]}
+          >
+            <p class="text-sm font-extrabold uppercase tracking-wide text-sun">{item.eyebrow}</p>
+            <p class="mt-1 font-display text-2xl font-extrabold text-ink">{item.label}</p>
+            <p class="mt-2 text-sm text-muted">{item.blurb}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+    <WaveEdge fill="var(--bg)" variant="b" flip />
+  </section>
+
+  <section class="bg-bg">
+    <div class="mx-auto max-w-6xl px-5 py-14">
+      <h2 class="-rotate-1 font-display text-3xl font-extrabold text-ink">More from the site</h2>
+      <div class="mt-8 flex flex-wrap justify-center gap-5">
+        {rest.map(({ post, collection }) => (
+          <div class="w-[min(100%,21rem)]">
+            <ContentCard post={post} collection={collection} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

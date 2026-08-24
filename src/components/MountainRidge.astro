@@ -1,0 +1,16 @@
+---
+interface Props {
+  fill?: string;
+}
+
+const { fill = 'var(--bg)' } = Astro.props;
+---
+
+<div class="mountain-ridge" aria-hidden="true">
+  <svg viewBox="0 0 1440 140" preserveAspectRatio="none">
+    <path
+      fill={fill}
+      d="M0 140V82C70 70 120 38 190 48C270 60 310 18 390 28C470 38 520 8 600 22C690 36 740 4 830 20C920 36 980 10 1070 26C1160 42 1220 16 1300 32C1360 42 1400 28 1440 36V140Z"
+    ></path>
+  </svg>
+</div>

@@ -1,0 +1,54 @@
+---
+import { guideList, topicList } from '../lib/content';
+import Logo from './Logo.astro';
+import WaveEdge from './WaveEdge.astro';
+
+const topics = topicList();
+const guides = guideList();
+---
+
+<footer class="mt-10">
+  <WaveEdge fill="var(--bg2)" variant="a" />
+  <div class="bg-bg2">
+    <div class="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3">
+      <div class="space-y-4">
+        <Logo />
+        <p class="max-w-xs text-muted">
+          Front Range days: camping, rocks, gymnastics, airplanes, and games.
+        </p>
+        <p class="text-sm text-muted">
+          Photos are free Wikimedia Commons shots of the real places.
+        </p>
+      </div>
+      <div>
+        <p class="font-display text-lg font-extrabold -rotate-1">Topics</p>
+        <ul class="mt-3 space-y-2">
+          {topics.map((item) => (
+            <li>
+              <a class="font-bold text-ink underline decoration-sun decoration-2 underline-offset-4" href={item.path}>
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <p class="font-display text-lg font-extrabold rotate-1">Guides</p>
+        <ul class="mt-3 space-y-2">
+          {guides.map((item) => (
+            <li>
+              <a class="font-bold text-ink underline decoration-sun decoration-2 underline-offset-4" href={item.path}>
+                {item.label}
+              </a>
+            </li>
+          ))}
+          <li>
+            <a class="font-bold text-ink underline decoration-sun decoration-2 underline-offset-4" href="/about">
+              About
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>

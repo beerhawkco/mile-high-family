@@ -1,0 +1,22 @@
+---
+import { AGE_LABELS, type AgeKey } from '../lib/content';
+
+interface Props {
+  age: AgeKey;
+  href?: string;
+  active?: boolean;
+}
+
+const { age, href, active = false } = Astro.props;
+const label = AGE_LABELS[age];
+const classes = [
+  'chip-curve inline-flex items-center px-3.5 py-1 text-sm font-extrabold no-underline',
+  active ? 'bg-violet text-white' : 'bg-chip text-ink',
+].join(' ');
+---
+
+{href ? (
+  <a class={classes} href={href}>{label}</a>
+) : (
+  <span class={classes}>{label}</span>
+)}

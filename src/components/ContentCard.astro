@@ -1,0 +1,41 @@
+---
+import { COLLECTION_META, collectionPath, type AnyPost, type CollectionKey } from '../lib/content';
+
+interface Props {
+  post: AnyPost;
+  collection: CollectionKey;
+  featured?: boolean;
+}
+
+const { post, collection, featured = false } = Astro.props;
+const href = collectionPath(collection, post.id);
+const meta = COLLECTION_META[collection];
+---
+
+<article
+  class:list={[
+    'card-bubble group p-3 transition-transform hover:-translate-y-1',
+    featured ? 'sm:grid sm:grid-cols-2 sm:items-center sm:gap-4' : '',
+  ]}
+>
+  <a href={href} class="block">
+    <img
+      src={post.data.hero}
+      alt={post.data.heroAlt}
+      class:list={[
+        'photo-blob h-52 w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]',
+        featured && 'sm:h-64',
+      ]}
+      loading="lazy"
+    />
+  </a>
+  <div class="space-y-3 p-4">
+    <span class="chip-curve inline-flex bg-sun/15 px-2.5 py-1 text-xs font-extrabold uppercase tracking-wide text-sun">
+      {meta.label}
+    </span>
+    <h3 class="font-display text-2xl font-extrabold leading-tight">
+      <a href={href} class="text-ink no-underline hover:text-sun">{post.data.title}</a>
+    </h3>
+    <p class="text-muted">{post.data.summary}</p>
+  </div>
+</article>

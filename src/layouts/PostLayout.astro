@@ -1,0 +1,53 @@
+---
+import WaveEdge from '../components/WaveEdge.astro';
+import { COLLECTION_META, type AnyPost, type CollectionKey } from '../lib/content';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  post: AnyPost;
+  collection: CollectionKey;
+}
+
+const { post, collection } = Astro.props;
+const meta = COLLECTION_META[collection];
+const dateLabel = post.data.date.toLocaleDateString('en-US', {
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+});
+---
+
+<BaseLayout title={post.data.title} description={post.data.summary}>
+  <article>
+    <header class="relative isolate">
+      <div class="hero-scoop overflow-hidden">
+        <img src={post.data.hero} alt={post.data.heroAlt} class="h-[22rem] w-full object-cover sm:h-[28rem]" />
+        <div class="absolute inset-0 bg-gradient-to-t from-[var(--ink)] via-black/30 to-transparent"></div>
+      </div>
+      <div class="absolute inset-x-0 bottom-16 mx-auto max-w-6xl px-4 sm:px-6">
+        <a href={meta.path} class="font-extrabold text-white/90 no-underline">{meta.eyebrow} / {meta.label}</a>
+        <h1 class="mt-3 max-w-3xl -rotate-1 font-display text-4xl font-extrabold leading-[1.05] text-white sm:text-5xl">
+          {post.data.title}
+        </h1>
+        <p class="mt-4 text-white/90">
+          <time datetime={post.data.date.toISOString()}>{dateLabel}</time>
+        </p>
+      </div>
+      <div class="relative -mt-8">
+        <WaveEdge fill="var(--bg)" variant="c" />
+      </div>
+    </header>
+    <div class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <p class="max-w-2xl text-xl text-muted">{post.data.summary}</p>
+      <div class="prose-family mt-8 text-lg leading-relaxed">
+        <slot />
+      </div>
+      {post.data.heroCredit && (
+        <p class="mt-10 text-sm text-muted">Photo: {post.data.heroCredit}</p>
+      )}
+      <p class="squash mt-6 -rotate-1 bg-chip px-6 py-5 font-bold text-ink">
+        Starter story for the launch site. Use it, tweak it, replace it.
+      </p>
+    </div>
+  </article>
+</BaseLayout>

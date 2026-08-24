@@ -1,0 +1,50 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Squiggle from "../components/Squiggle.astro";
+import WaveEdge from "../components/WaveEdge.astro";
+---
+
+<BaseLayout title="About" description="What Mile High Family is — and is not.">
+  <section class="relative overflow-hidden bg-bg2">
+    <div class="blob -left-12 top-0 size-44 bg-sun/30"></div>
+    <div class="blob blob-2 right-0 top-10 size-52 bg-navy/10"></div>
+    <div class="relative mx-auto max-w-3xl px-5 py-16">
+      <p class="eyebrow -rotate-1">About</p>
+      <h1 class="mt-2 -rotate-1 font-display text-5xl font-extrabold leading-[1.05] text-ink">
+        A Colorado site, not a clinic.
+      </h1>
+      <Squiggle class="mt-3 text-sun" />
+    </div>
+    <WaveEdge fill="var(--bg)" variant="c" />
+  </section>
+  <section class="bg-bg">
+    <div class="mx-auto max-w-3xl px-5 py-12">
+      <div class="prose-family squash bg-surface p-8 text-lg leading-relaxed shadow-sm md:p-10">
+        <p>
+          Mile High Family is a public Front Range site about camping, rockhounding, gymnastics, aviation, and gaming — plus adventures, easy days out, and short lessons. It is written for anyone planning those days, not for a single age band or a “younger family” beat.
+        </p>
+        <p>
+          The bar is straightforward: useful, family-friendly when a mixed group is coming, and honest about effort. If a place needs a reservation, a helmet, or an early start, we say so.
+        </p>
+        <h2>What you will find</h2>
+        <ul>
+          <li>Camping, rockhounding, gymnastics, aviation, and gaming as first-class sections</li>
+          <li>Front Range trips with effort notes and a packing list</li>
+          <li>Weekend ideas that still feel like leaving the house</li>
+          <li>Lessons you can use the same afternoon</li>
+        </ul>
+        <h2>What this is not</h2>
+        <p>
+          This is not a medical practice, a therapy office, or a dentist. Those already use similar names in Denver. We are a lifestyle site about Colorado days.
+        </p>
+        <p>
+          Launch stories are starter editorial for real Colorado places. Photos come from Wikimedia Commons — free, and of the actual spots we name.
+        </p>
+        <h2>Privacy</h2>
+        <p>
+          We do not publish children’s full names, school details, or home addresses. If you send a story, we will keep it that way.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

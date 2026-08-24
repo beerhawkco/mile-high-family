@@ -1,0 +1,21 @@
+---
+interface Props {
+  fill?: string;
+  flip?: boolean;
+  variant?: "a" | "b" | "c";
+}
+
+const { fill = "var(--bg)", flip = false, variant = "a" } = Astro.props;
+
+const paths = {
+  a: "M0 52C118 86 246 10 392 36C538 62 656 88 806 44C956 0 1148 18 1440 58V90H0Z",
+  b: "M0 28C160 78 280 8 430 48C580 88 700 12 860 40C1020 68 1180 22 1440 70V90H0Z",
+  c: "M0 64C90 20 220 80 380 30C540 -10 690 74 850 38C1010 2 1220 66 1440 24V90H0Z",
+};
+---
+
+<div class:list={["wave-edge", flip && "rotate-180"]} aria-hidden="true">
+  <svg viewBox="0 0 1440 90" preserveAspectRatio="none">
+    <path fill={fill} d={paths[variant]}></path>
+  </svg>
+</div>

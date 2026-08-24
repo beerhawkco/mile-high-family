@@ -1,0 +1,25 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = 'size-10' } = Astro.props;
+---
+
+<svg class={className} viewBox="0 0 84 54" fill="none" aria-hidden="true">
+  <defs>
+    <radialGradient id="mhf-sun" cx="46%" cy="38%" r="62%">
+      <stop offset="0%" stop-color="#FFC44A"></stop>
+      <stop offset="100%" stop-color="#E87820"></stop>
+    </radialGradient>
+  </defs>
+  <circle cx="58" cy="18" r="11" fill="url(#mhf-sun)"></circle>
+  <path
+    d="M4 48 22 20 36 38 52 8 66 30 80 48"
+    stroke="currentColor"
+    stroke-width="4.4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  ></path>
+  <path d="M52 8v14" stroke="currentColor" stroke-width="4.4" stroke-linecap="round"></path>
+</svg>

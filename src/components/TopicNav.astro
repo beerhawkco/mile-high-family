@@ -1,0 +1,26 @@
+---
+import { topicList } from '../lib/content';
+
+const topics = topicList();
+const current = Astro.url.pathname;
+---
+
+<nav aria-label="Topics">
+  <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 pb-4 pt-1 sm:px-6">
+    {topics.map((topic, index) => {
+      const active = current === topic.path || current.startsWith(`${topic.path}/`);
+      return (
+        <a
+          href={topic.path}
+          class:list={[
+            'chip-curve shrink-0 px-4 py-1.5 text-sm font-extrabold no-underline shadow-sm',
+            index % 2 === 0 ? 'rotate-[-3deg]' : 'rotate-[2.5deg]',
+            active ? 'bg-navy text-cream' : 'bg-surface text-ink hover:bg-chip',
+          ]}
+        >
+          {topic.label}
+        </a>
+      );
+    })}
+  </div>
+</nav>

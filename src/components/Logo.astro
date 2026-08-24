@@ -1,0 +1,31 @@
+---
+import MountainMark from './MountainMark.astro';
+
+interface Props {
+  compact?: boolean;
+}
+
+const { compact = false } = Astro.props;
+---
+
+<a href="/" class="group inline-flex items-center gap-3 text-ink no-underline">
+  <MountainMark class={compact ? 'size-10' : 'size-14'} />
+  <span class="leading-none">
+    <span
+      class:list={[
+        'block font-display font-extrabold uppercase tracking-[0.06em] text-ink',
+        compact ? 'text-[0.95rem]' : 'text-xl',
+      ]}
+    >
+      Mile High Family
+    </span>
+    <span
+      class:list={[
+        'mt-1 block font-extrabold uppercase text-sun',
+        compact ? 'text-[0.58rem] tracking-[0.22em]' : 'text-[0.7rem] tracking-[0.28em]',
+      ]}
+    >
+      Colorado Adventures
+    </span>
+  </span>
+</a>

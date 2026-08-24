@@ -1,0 +1,242 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg2: var(--bg2);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-chip: var(--chip);
+  --color-pink: #e87820;
+  --color-violet: #1b1638;
+  --color-mint: #e87820;
+  --color-sun: #f0a01a;
+  --color-navy: #1b1638;
+  --color-navy-deep: #14102a;
+  --color-coral: #e87820;
+  --color-coral-hot: #e87820;
+  --color-cream: #f3e6c8;
+  --color-sky: var(--chip);
+  --color-pine: #c9a15b;
+  --font-display: "Outfit", ui-rounded, sans-serif;
+  --font-body: "Figtree", ui-sans-serif, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+  --bg: #f6f1e6;
+  --bg2: #eee4cf;
+  --surface: #fffdf8;
+  --ink: #1b1638;
+  --muted: #5c5670;
+  --line: rgb(27 22 56 / 0.12);
+  --chip: #f3e6c8;
+  --hero: radial-gradient(120% 140% at 12% 10%, #f0a01a 0%, transparent 42%),
+    radial-gradient(90% 120% at 92% 88%, #f3e6c8 0%, transparent 36%),
+    linear-gradient(150deg, #2c2558 0%, #1b1638 72%);
+}
+
+.dark {
+  color-scheme: dark;
+  --bg: #14102a;
+  --bg2: #1b1638;
+  --surface: #241e44;
+  --ink: #f3e6c8;
+  --muted: #c9bfa8;
+  --line: rgb(243 230 200 / 0.14);
+  --chip: #2a2450;
+  --hero: radial-gradient(120% 140% at 10% 8%, #e87820 0%, transparent 46%),
+    radial-gradient(90% 120% at 94% 90%, #f0a01a 0%, transparent 40%),
+    linear-gradient(150deg, #2c2558 0%, #100c22 100%);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+::selection {
+  background: #e87820;
+  color: white;
+}
+
+.bg-hero {
+  background: var(--hero);
+}
+
+.blob {
+  position: absolute;
+  border-radius: 64% 36% 48% 52% / 42% 58% 42% 58%;
+  filter: blur(22px);
+  pointer-events: none;
+}
+
+.blob-2 {
+  border-radius: 38% 62% 70% 30% / 60% 40% 68% 32%;
+}
+
+.squash {
+  border-radius: 2.7rem 1.15rem 2.5rem 1.45rem;
+}
+
+.squash-alt {
+  border-radius: 1.2rem 2.8rem 1.35rem 2.55rem;
+}
+
+.chip-curve {
+  border-radius: 1.7rem 0.45rem 1.85rem 0.7rem;
+}
+
+.btn-curve {
+  border-radius: 2.35rem 0.55rem 2.05rem 0.85rem;
+}
+
+.btn-curve-alt {
+  border-radius: 0.55rem 2.25rem 0.75rem 2.05rem;
+}
+
+.photo-blob {
+  border-radius: 58% 42% 49% 51% / 46% 54% 46% 54%;
+}
+
+.photo-blob-alt {
+  border-radius: 42% 58% 38% 62% / 58% 38% 62% 42%;
+}
+
+.hero-scoop {
+  border-radius: 0 0 46% 54% / 0 0 26% 32%;
+}
+
+.header-curve {
+  border-bottom-left-radius: 45% 2.6rem;
+  border-bottom-right-radius: 55% 3.2rem;
+}
+
+.squiggle {
+  display: block;
+  width: 11rem;
+  height: 1.1rem;
+}
+
+.card-bubble {
+  background: var(--surface);
+  box-shadow: 8px 14px 0 rgb(232 120 32 / 0.16);
+}
+
+.dark .card-bubble {
+  box-shadow: 8px 14px 0 rgb(240 160 26 / 0.2);
+}
+
+.card-bubble:nth-child(odd),
+.wobble-odd {
+  border-radius: 2.7rem 1.15rem 2.5rem 1.45rem;
+  rotate: -1.1deg;
+}
+
+.card-bubble:nth-child(even),
+.wobble-even {
+  border-radius: 1.2rem 2.8rem 1.35rem 2.55rem;
+  rotate: 1.15deg;
+}
+
+.card-bubble:nth-child(3n) .photo-blob {
+  border-radius: 42% 58% 38% 62% / 58% 38% 62% 42%;
+}
+
+.card-bubble:nth-child(3n + 1) .photo-blob {
+  border-radius: 62% 38% 55% 45% / 40% 60% 40% 60%;
+}
+
+.card-bubble:nth-child(3n + 2) .photo-blob {
+  border-radius: 48% 52% 70% 30% / 50% 45% 55% 50%;
+}
+
+.card-bubble:hover {
+  rotate: 0deg;
+}
+
+.wave-edge {
+  display: block;
+  line-height: 0;
+  width: 100%;
+}
+
+.wave-edge svg {
+  display: block;
+  width: 100%;
+  height: 4.25rem;
+}
+
+.eyebrow {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.75rem;
+  color: #e87820;
+}
+
+.mountain-ridge {
+  display: block;
+  line-height: 0;
+  width: 100%;
+}
+
+.mountain-ridge svg {
+  display: block;
+  width: 100%;
+  height: 5.5rem;
+}
+
+.prose-family {
+  max-width: 42rem;
+}
+
+.prose-family > * + * {
+  margin-top: 1.15rem;
+}
+
+.prose-family h2 {
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  line-height: 1.15;
+  margin-top: 2rem;
+}
+
+.prose-family h3 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin-top: 1.6rem;
+}
+
+.prose-family ul,
+.prose-family ol {
+  padding-left: 1.25rem;
+}
+
+.prose-family li + li {
+  margin-top: 0.4rem;
+}
+
+.prose-family a {
+  color: #e87820;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.dark .prose-family a {
+  color: #ffc44a;
+}
+
+.prose-family strong {
+  color: var(--ink);
+}

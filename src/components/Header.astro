@@ -1,0 +1,57 @@
+---
+import { guideList, topicList } from '../lib/content';
+import Logo from './Logo.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import TopicNav from './TopicNav.astro';
+
+const guides = [...guideList(), { path: '/about', label: 'About', eyebrow: '', blurb: '', key: 'about' as const }];
+const topics = topicList();
+const current = Astro.url.pathname;
+---
+
+<header class="header-curve sticky top-0 z-40 bg-bg/90 shadow-[0_18px_0_rgb(232_120_32_/_0.08)] backdrop-blur-xl">
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+    <Logo compact />
+    <nav class="hidden items-center gap-1 lg:flex" aria-label="Primary">
+      {guides.map((link) => {
+        const active = current === link.path || current.startsWith(`${link.path}/`);
+        return (
+          <a
+            href={link.path}
+            class:list={[
+              'btn-curve px-3.5 py-2 text-sm font-extrabold no-underline transition-transform hover:-rotate-2',
+              active ? 'bg-navy text-cream' : 'text-ink hover:bg-chip',
+            ]}
+          >
+            {link.label}
+          </a>
+        );
+      })}
+    </nav>
+    <div class="flex items-center gap-2">
+      <ThemeToggle />
+      <details class="relative lg:hidden">
+        <summary
+          class="btn-curve list-none bg-sun px-4 py-2 font-display text-sm font-extrabold text-navy [&::-webkit-details-marker]:hidden"
+        >
+          Menu
+        </summary>
+        <div class="card-bubble squash absolute right-0 mt-2 w-56 p-3">
+          <p class="px-3 pt-2 text-xs font-extrabold uppercase tracking-wide text-sun">Topics</p>
+          {topics.map((link) => (
+            <a href={link.path} class="block rounded-[1.4rem] px-3 py-2.5 font-extrabold text-ink no-underline hover:bg-chip">
+              {link.label}
+            </a>
+          ))}
+          <p class="px-3 pt-2 text-xs font-extrabold uppercase tracking-wide text-sun">Guides</p>
+          {guides.map((link) => (
+            <a href={link.path} class="block rounded-[1.4rem] px-3 py-2.5 font-extrabold text-ink no-underline hover:bg-chip">
+              {link.label}
+            </a>
+          ))}
+        </div>
+      </details>
+    </div>
+  </div>
+  <TopicNav />
+</header>

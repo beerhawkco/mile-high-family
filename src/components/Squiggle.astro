@@ -1,0 +1,22 @@
+---
+interface Props {
+  class?: string;
+  color?: string;
+}
+
+const { class: className = "text-pink", color = "currentColor" } = Astro.props;
+---
+
+<svg
+  class:list={["squiggle", className]}
+  viewBox="0 0 220 18"
+  fill="none"
+  aria-hidden="true"
+>
+  <path
+    d="M3 11C28 3 46 16 72 9C98 2 116 15 142 8C168 1 188 14 217 6"
+    stroke={color}
+    stroke-width="3.5"
+    stroke-linecap="round"
+  ></path>
+</svg>

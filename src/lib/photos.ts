@@ -1,0 +1,41 @@
+/** Free Wikimedia Commons photos of the actual places named on the site. */
+export const photos = {
+  denverSkyline:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Denver_skyline.jpg?width=1600',
+  bearLake:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Bear_Lake,_Rocky_Mountain_National_Park_(6045126612).jpg?width=1600',
+  gardenOfTheGods:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Pulpit_Rock_and_Cathedral_Spires_at_Garden_of_the_Gods.jpg?width=1600',
+  redRocks:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Red_Rocks_Amphitheatre.jpg?width=1600',
+  childrensMuseum:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/20150804_childrens-museum_120.jpg?width=1600',
+  highLineCanal:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/High_Line_Canal-Denver_Iliff_and_Yosemite.JPG?width=1600',
+  rmnp:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Rocky_Mountain_National_Park.jpg?width=1600',
+  pikesPeak:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Pikes_Peak_Colorado_March_2010.jpg?width=1600',
+  chatfield:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Chatfield_Reservoir_from_Chatfield_Overlook.jpeg?width=1600',
+  chatfieldPark:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Chatfield_State_Park.JPG?width=1600',
+  mueller:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/2024-06-05_Mueller_State_Park_-_109.jpg?width=1600',
+  crystalPeak:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Amazonite-smoky_quartz_(Jack_Rabbit_Mine,_Crystal_Peak,_Colorado,_USA)_1.jpg?width=1600',
+  florissant:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Florissant_Fossil_Beds_1.JPG?width=1600',
+  genesee:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Genesee_Park_Picnic_Shelter.jpg?width=1600',
+  wings:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/B-1A_Lancer_at_Wings_Over_the_Rockies.jpg?width=1600',
+  dia:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Denver_International_Airport.jpg?width=1600',
+  gymnastics:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/2015_European_Artistic_Gymnastics_Championships_-_Floor_-_Amy_Tinkler_08.jpg?width=1600',
+  catan:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Settlers_of_Catan_completed.jpg?width=1600',
+  controller:
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Nintendo-Switch-Pro-Controller-FL.jpg?width=1600',
+} as const;
