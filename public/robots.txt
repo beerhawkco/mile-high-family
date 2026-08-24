@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /cairn
+Disallow: /cairn/
+Allow: /

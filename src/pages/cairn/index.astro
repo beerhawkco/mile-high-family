@@ -1,0 +1,252 @@
+---
+import '../../styles/global.css';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Cairn</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="cairn">
+    <main class="wrap">
+      <p class="mark">Cairn</p>
+      <p class="sub">Private desk for Mile High Family</p>
+
+      <p id="status" data-kind="ok">Locked.</p>
+
+      <section id="login-panel" class="card">
+        <h1>Unlock</h1>
+        <p class="help">
+          First time on this phone or laptop: a password you invent, plus a GitHub token that can edit
+          <strong>beerhawkco/mile-high-family</strong>. After that, password only.
+        </p>
+        <form id="login-form">
+          <label class="hp">Leave blank<input id="website" name="website" tabindex="-1" autocomplete="off" /></label>
+          <label>Password<input id="password" type="password" autocomplete="current-password" required minlength="10" /></label>
+          <div id="token-wrap">
+            <label>GitHub token<input id="token" type="password" autocomplete="off" /></label>
+            <p class="help">
+              GitHub → your profile picture → Settings → Developer settings → Personal access tokens →
+              Fine-grained tokens → Generate. Only the <strong>mile-high-family</strong> repo. Contents:
+              Read and write. Copy it once.
+            </p>
+          </div>
+          <button type="submit" class="btn">Unlock</button>
+        </form>
+      </section>
+
+      <section id="app-panel" class="hidden">
+        <div class="toolbar">
+          <button type="button" id="logout-btn" class="btn ghost">Lock</button>
+          <button type="button" id="forget-btn" class="btn ghost">Forget this device</button>
+        </div>
+
+        <div id="list-view" class="card">
+          <div class="row">
+            <h1>Notes</h1>
+            <p id="post-count" class="help">0 notes</p>
+          </div>
+          <label>Section
+            <select id="filter"></select>
+          </label>
+          <button type="button" id="new-btn" class="btn">New note</button>
+          <div id="post-list" class="list"></div>
+        </div>
+
+        <div id="editor-view" class="card hidden">
+          <div class="row">
+            <h1 id="editor-kicker">Edit note</h1>
+            <button type="button" id="back-btn" class="btn ghost">Back</button>
+          </div>
+          <label>Section
+            <select id="collection"></select>
+          </label>
+          <label>Title<input id="title" type="text" /></label>
+          <label>Web address<input id="slug" type="text" placeholder="first-car-camp" /></label>
+          <label>Summary<textarea id="summary" rows="3"></textarea></label>
+          <label>Date<input id="date" type="date" /></label>
+          <label>Tags <span class="help">comma separated</span><input id="tags" type="text" /></label>
+          <label>Ages
+            <select id="ages"></select>
+          </label>
+          <label class="check"><input id="featured" type="checkbox" /> Featured on the home page</label>
+          <label class="check"><input id="weekend" type="checkbox" /> This-weekend list</label>
+          <label>Photo URL<input id="hero" type="url" placeholder="https://… or /uploads/…" /></label>
+          <label>Or upload a photo<input id="photo-file" type="file" accept="image/*" /></label>
+          <img id="hero-preview" alt="" class="preview hidden" />
+          <label>Photo description<input id="heroAlt" type="text" /></label>
+          <label>Photo credit<input id="heroCredit" type="text" /></label>
+          <label>Body<textarea id="body" rows="16"></textarea></label>
+          <div class="toolbar">
+            <button type="button" id="save-btn" class="btn">Save</button>
+            <button type="button" id="delete-btn" class="btn danger hidden">Delete</button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script>
+      import { boot } from '../../lib/cms/desk';
+      boot();
+    </script>
+  </body>
+</html>
+
+<style>
+  .cairn {
+    min-height: 100vh;
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+  }
+  .wrap {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 1.5rem 1.1rem 4rem;
+  }
+  .mark {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sun);
+  }
+  .sub,
+  .help {
+    color: var(--muted);
+    line-height: 1.45;
+  }
+  .card {
+    margin-top: 1.25rem;
+    padding: 1.2rem;
+    border-radius: 1.6rem;
+    background: var(--surface);
+    box-shadow: 0 10px 0 rgb(27 22 56 / 0.06);
+  }
+  h1 {
+    margin: 0 0 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+  }
+  label {
+    display: block;
+    margin: 0.85rem 0;
+    font-weight: 800;
+  }
+  input,
+  select,
+  textarea {
+    display: block;
+    width: 100%;
+    margin-top: 0.35rem;
+    padding: 0.75rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--bg);
+    color: var(--ink);
+    font: inherit;
+  }
+  .check {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 700;
+  }
+  .check input {
+    width: auto;
+    margin: 0;
+  }
+  .btn {
+    border: 0;
+    border-radius: 999px;
+    padding: 0.8rem 1.15rem;
+    background: #f0a01a;
+    color: #1b1638;
+    font-weight: 800;
+    font-family: var(--font-display);
+    cursor: pointer;
+  }
+  .btn.ghost {
+    background: var(--chip);
+    color: var(--ink);
+  }
+  .btn.danger {
+    background: #8b2e2e;
+    color: #fffdf8;
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 0.8rem 0;
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: baseline;
+  }
+  .list {
+    display: grid;
+    gap: 0.55rem;
+    margin-top: 1rem;
+  }
+  .post-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    text-align: left;
+    border: 0;
+    border-radius: 1.1rem;
+    padding: 0.85rem 0.95rem;
+    background: var(--chip);
+    color: var(--ink);
+    cursor: pointer;
+    font: inherit;
+  }
+  .post-row span {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .preview {
+    display: block;
+    width: 100%;
+    max-height: 14rem;
+    object-fit: cover;
+    border-radius: 1.2rem;
+    margin: 0.6rem 0;
+  }
+  #status {
+    margin: 1rem 0 0;
+    font-weight: 700;
+  }
+  #status[data-kind='err'] {
+    color: #8b2e2e;
+  }
+  #status[data-kind='busy'] {
+    color: var(--sun);
+  }
+  .hidden {
+    display: none !important;
+  }
+  .hp {
+    position: absolute;
+    left: -9999px;
+    height: 0;
+    overflow: hidden;
+  }
+</style>
