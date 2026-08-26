@@ -62,8 +62,11 @@ export async function unsealToken(password: string, vault: VaultBlob) {
   }
 }
 
-export function readVault(storage: Pick<Storage, 'getItem'>): VaultBlob | null {
-  const raw = storage.getItem('mhf-cairn-vault');
+export function readVault(
+  storage: Pick<Storage, 'getItem'>,
+  key = 'mhf-cairn-vault',
+): VaultBlob | null {
+  const raw = storage.getItem(key);
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as VaultBlob;
@@ -74,10 +77,14 @@ export function readVault(storage: Pick<Storage, 'getItem'>): VaultBlob | null {
   }
 }
 
-export function writeVault(storage: Pick<Storage, 'setItem'>, vault: VaultBlob) {
-  storage.setItem('mhf-cairn-vault', JSON.stringify(vault));
+export function writeVault(
+  storage: Pick<Storage, 'setItem'>,
+  vault: VaultBlob,
+  key = 'mhf-cairn-vault',
+) {
+  storage.setItem(key, JSON.stringify(vault));
 }
 
-export function clearVault(storage: Pick<Storage, 'removeItem'>) {
-  storage.removeItem('mhf-cairn-vault');
+export function clearVault(storage: Pick<Storage, 'removeItem'>, key = 'mhf-cairn-vault') {
+  storage.removeItem(key);
 }

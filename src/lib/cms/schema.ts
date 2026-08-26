@@ -1,6 +1,9 @@
 export const CMS_REPO = 'beerhawkco/mile-high-family';
 export const CMS_BRANCH = 'main';
 export const CMS_VAULT_KEY = 'mhf-cairn-vault';
+export const OPENAI_VAULT_KEY = 'mhf-campfire-openai';
+export const SITE_ORIGIN = 'https://milehighfamily.com';
+export const CAMPFIRE_DIR = 'src/content/campfire';
 
 export const DESK_COLLECTIONS = [
   'camping',
@@ -65,4 +68,16 @@ export function slugFromTitle(title: string) {
 
 export function isValidSlug(slug: string) {
   return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
+}
+
+export function campfirePath(slug: string) {
+  return `${CAMPFIRE_DIR}/${slug}.json`;
+}
+
+export function titleFromSlug(slug: string) {
+  return slug
+    .split('-')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
 }

@@ -1,6 +1,28 @@
-import { CMS_BRANCH, CMS_REPO, contentPath, type DeskCollection } from './schema.ts';
+import {
+  CAMPFIRE_DIR,
+  CMS_BRANCH,
+  CMS_REPO,
+  campfirePath,
+  contentPath,
+  type DeskCollection,
+} from './schema.ts';
 
 const API = 'https://api.github.com';
+
+export class GitHubHttpError extends Error {
+  readonly status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = 'GitHubHttpError';
+    this.status = status;
+  }
+}
+
+export function isConflictError(error: unknown) {
+  if (!(error instanceof GitHubHttpError)) return false;
+  if (error.status === 409) return true;
+  return error.status === 422 && /sha/i.test(error.message);
+}
 
 export type RepoFile = {
   path: string;
@@ -38,7 +60,7 @@ async function github<T>(token: string, path: string, init: RequestInit = {}): P
       typeof body === 'object' && body && 'message' in body
         ? String((body as { message: string }).message)
         : `GitHub ${response.status}`;
-    throw new Error(message);
+    throw new GitHubHttpError(response.status, message);
   }
   return body as T;
 }
@@ -47,6 +69,18 @@ function bytesToB64(bytes: Uint8Array) {
   let bin = '';
   for (const byte of bytes) bin += String.fromCharCode(byte);
   return btoa(bin);
+}
+
+export type GitHubUser = {
+  login: string;
+  name: string;
+};
+
+export async function getUser(token: string): Promise<GitHubUser> {
+  const user = await github<{ login?: string; name?: string | null }>(token, '/user');
+  const login = user.login?.trim();
+  if (!login) throw new Error('GitHub did not return a username for this token.');
+  return { login, name: user.name?.trim() || login };
 }
 
 export async function verifyToken(token: string) {
@@ -149,6 +183,56 @@ export async function savePost(
 ) {
   const path = contentPath(collection, slug);
   await putFile(token, path, raw, sha ? `Desk: update ${collection}/${slug}` : `Desk: add ${collection}/${slug}`, sha);
+}
+
+export type CampfireIndexItem = {
+  slug: string;
+  path: string;
+};
+
+export async function listCampfireFiles(token: string): Promise<CampfireIndexItem[]> {
+  const tree = await github<{ tree: TreeItem[] }>(
+    token,
+    `/repos/${CMS_REPO}/git/trees/${CMS_BRANCH}?recursive=1`,
+  );
+  return tree.tree
+    .filter((item) => {
+      if (item.type !== 'blob') return false;
+      if (!item.path.startsWith(`${CAMPFIRE_DIR}/`) || !item.path.endsWith('.json')) return false;
+      const name = item.path.slice(CAMPFIRE_DIR.length + 1);
+      return Boolean(name) && !name.includes('/');
+    })
+    .map((item) => {
+      const file = item.path.split('/').pop() ?? item.path;
+      return {
+        slug: file.replace(/\.json$/, ''),
+        path: item.path,
+      };
+    })
+    .sort((a, b) => a.slug.localeCompare(b.slug));
+}
+
+export async function saveCampfireFile(
+  token: string,
+  slug: string,
+  raw: string,
+  actor: string,
+  sha?: string,
+) {
+  const path = campfirePath(slug);
+  const who = actor ? ` (@${actor})` : '';
+  await putFile(
+    token,
+    path,
+    raw,
+    sha ? `Campfire: update ${slug}${who}` : `Campfire: add ${slug}${who}`,
+    sha,
+  );
+}
+
+export async function deleteCampfireFile(token: string, slug: string, sha: string, actor: string) {
+  const who = actor ? ` (@${actor})` : '';
+  await deleteFile(token, campfirePath(slug), sha, `Campfire: remove ${slug}${who}`);
 }
 
 export function uploadPath(filename: string) {

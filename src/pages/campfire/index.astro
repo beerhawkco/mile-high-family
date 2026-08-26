@@ -1,0 +1,410 @@
+---
+import '../../styles/global.css';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Campfire</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="campfire">
+    <main class="wrap">
+      <p class="mark">Campfire</p>
+      <p class="sub">Private social desk for Mile High Family</p>
+
+      <p id="status" data-kind="ok">Locked.</p>
+
+      <section id="login-panel" class="card">
+        <h1>Unlock</h1>
+        <p class="help">
+          Same lock as Cairn. First time on this phone or laptop: a password you invent, plus a GitHub token that can
+          edit <strong>beerhawkco/mile-high-family</strong>. After that, password only. Anyone with Contents: Read and
+          write can share the queue.
+        </p>
+        <form id="login-form">
+          <label class="hp">Leave blank<input id="website" name="website" tabindex="-1" autocomplete="off" /></label>
+          <label>Password<input id="password" type="password" autocomplete="current-password" required minlength="10" /></label>
+          <div id="token-wrap">
+            <label>GitHub token<input id="token" type="password" autocomplete="off" /></label>
+            <p class="help">
+              GitHub → your profile picture → Settings → Developer settings → Personal access tokens → Fine-grained
+              tokens → Generate. Only the <strong>mile-high-family</strong> repo. Contents: Read and write. Copy it once.
+            </p>
+          </div>
+          <button type="submit" class="btn">Unlock</button>
+        </form>
+      </section>
+
+      <section id="app-panel" class="hidden">
+        <p id="signed-in" class="help">Signed in</p>
+        <div class="toolbar">
+          <button type="button" id="nav-queue" class="btn ghost active">Queue</button>
+          <button type="button" id="nav-ideas" class="btn ghost">Ideas</button>
+          <button type="button" id="nav-settings" class="btn ghost">Settings</button>
+          <a class="btn ghost" href="/cairn">Cairn</a>
+          <button type="button" id="logout-btn" class="btn ghost">Lock</button>
+          <button type="button" id="forget-btn" class="btn ghost">Forget this device</button>
+        </div>
+
+        <div id="queue-view" class="card">
+          <div class="row">
+            <h1>Queue</h1>
+            <p id="queue-count" class="help">0 in view</p>
+          </div>
+          <p class="help">Shared with anyone who can edit the repo. Refresh after a teammate saves.</p>
+          <div class="filters">
+            <label>People
+              <select id="filter-people">
+                <option value="all">Everyone</option>
+                <option value="mine">Mine</option>
+                <option value="unclaimed">Unclaimed</option>
+              </select>
+            </label>
+            <label>Status
+              <select id="filter-status"></select>
+            </label>
+            <label>Platform
+              <select id="filter-platform"></select>
+            </label>
+          </div>
+          <div class="toolbar">
+            <button type="button" id="refresh-btn" class="btn ghost">Refresh</button>
+            <button type="button" id="new-item-btn" class="btn">New item</button>
+          </div>
+          <div id="queue-list" class="list"></div>
+        </div>
+
+        <div id="ideas-view" class="card hidden">
+          <h1>Ideas</h1>
+          <p class="help">Seasonal Front Range prompts plus every public note on the site. Use this claims it to you.</p>
+          <div id="idea-list" class="list"></div>
+        </div>
+
+        <div id="settings-view" class="card hidden">
+          <h1>Settings</h1>
+          <p class="help">
+            Optional. A bring-your-own OpenAI key stays sealed on this device. The desk still writes captions without it.
+            Keys never go in GitHub.
+          </p>
+          <label>OpenAI key<input id="openai-key" type="password" autocomplete="off" /></label>
+          <div class="toolbar">
+            <button type="button" id="save-openai-btn" class="btn">Seal key on this device</button>
+            <button type="button" id="clear-openai-btn" class="btn ghost">Forget key</button>
+          </div>
+        </div>
+
+        <div id="composer-view" class="card hidden">
+          <div class="row">
+            <h1>Composer</h1>
+            <button type="button" id="back-queue-btn" class="btn ghost">Back</button>
+          </div>
+          <p id="source-line" class="help">No source note.</p>
+          <label>Title<input id="item-title" type="text" /></label>
+          <label>Web address<input id="item-slug" type="text" placeholder="bear-lake-week" /></label>
+          <label>Planned date<input id="item-date" type="date" /></label>
+          <label>Status
+            <select id="item-status"></select>
+          </label>
+          <p class="field-label">Platforms</p>
+          <div class="checks">
+            <label class="check"><input id="platform-blog" type="checkbox" /> Blog</label>
+            <label class="check"><input id="platform-instagram" type="checkbox" /> Instagram</label>
+            <label class="check"><input id="platform-facebook" type="checkbox" /> Facebook</label>
+            <label class="check"><input id="platform-x" type="checkbox" /> X</label>
+            <label class="check"><input id="platform-youtube" type="checkbox" /> YouTube</label>
+          </div>
+          <label>Assignee
+            <select id="item-assignee"></select>
+          </label>
+          <button type="button" id="assign-me-btn" class="btn ghost">Assign to me</button>
+          <label>Teammate memo<textarea id="item-note" rows="2" placeholder="Needs a better hook. Posted on IG already."></textarea></label>
+          <div class="toolbar">
+            <button type="button" id="generate-btn" class="btn ghost">Generate from source note</button>
+            <button type="button" id="rewrite-btn" class="btn ghost hidden">Rewrite this tab in our voice</button>
+          </div>
+
+          <div class="tabs" role="tablist">
+            <button type="button" id="tab-blog" class="btn ghost">Blog</button>
+            <button type="button" id="tab-instagram" class="btn ghost active">Instagram</button>
+            <button type="button" id="tab-facebook" class="btn ghost">Facebook</button>
+            <button type="button" id="tab-x" class="btn ghost">X</button>
+            <button type="button" id="tab-youtube" class="btn ghost">YouTube</button>
+          </div>
+
+          <div id="pane-blog" class="pane hidden">
+            <div class="row"><label>Promo blurb</label><button type="button" class="btn ghost" data-copy="copy-blog-blurb">Copy</button></div>
+            <textarea id="copy-blog-blurb" rows="4"></textarea>
+            <div class="row"><label>Link</label><button type="button" class="btn ghost" data-copy="copy-blog-link">Copy</button></div>
+            <input id="copy-blog-link" type="url" />
+          </div>
+
+          <div id="pane-instagram" class="pane">
+            <div class="row"><label>Caption</label><button type="button" class="btn ghost" data-copy="copy-ig-caption">Copy</button></div>
+            <textarea id="copy-ig-caption" rows="8"></textarea>
+            <div class="row"><label>Hashtags</label><button type="button" class="btn ghost" data-copy="copy-ig-hashtags">Copy</button></div>
+            <input id="copy-ig-hashtags" type="text" />
+            <div class="row"><label>Alt text</label><button type="button" class="btn ghost" data-copy="copy-ig-alt">Copy</button></div>
+            <input id="copy-ig-alt" type="text" />
+            <div class="row"><label>Story line</label><button type="button" class="btn ghost" data-copy="copy-ig-story">Copy</button></div>
+            <input id="copy-ig-story" type="text" />
+          </div>
+
+          <div id="pane-facebook" class="pane hidden">
+            <div class="row"><label>Post</label><button type="button" class="btn ghost" data-copy="copy-fb-post">Copy</button></div>
+            <textarea id="copy-fb-post" rows="10"></textarea>
+            <div class="row"><label>Link</label><button type="button" class="btn ghost" data-copy="copy-fb-link">Copy</button></div>
+            <input id="copy-fb-link" type="url" />
+          </div>
+
+          <div id="pane-x" class="pane hidden">
+            <div class="row"><label>Thread</label><button type="button" class="btn ghost" data-copy="copy-x-thread">Copy</button></div>
+            <textarea id="copy-x-thread" rows="8"></textarea>
+          </div>
+
+          <div id="pane-youtube" class="pane hidden">
+            <div class="row"><label>Title</label><button type="button" class="btn ghost" data-copy="copy-yt-title">Copy</button></div>
+            <input id="copy-yt-title" type="text" />
+            <div class="row"><label>Description</label><button type="button" class="btn ghost" data-copy="copy-yt-description">Copy</button></div>
+            <textarea id="copy-yt-description" rows="8"></textarea>
+            <div class="row"><label>Tags</label><button type="button" class="btn ghost" data-copy="copy-yt-tags">Copy</button></div>
+            <input id="copy-yt-tags" type="text" />
+            <div class="row"><label>Spoken script</label><button type="button" class="btn ghost" data-copy="copy-yt-script">Copy</button></div>
+            <textarea id="copy-yt-script" rows="12"></textarea>
+          </div>
+
+          <h2>Image studio</h2>
+          <label>Layout
+            <select id="card-kind"></select>
+          </label>
+          <label>Size
+            <select id="card-size"></select>
+          </label>
+          <label>Headline<input id="card-line" type="text" /></label>
+          <label>Subline<input id="card-sub" type="text" /></label>
+          <label class="check"><input id="use-hero" type="checkbox" /> Use the note’s photo under the type</label>
+          <canvas id="card-canvas" class="card-canvas" width="1080" height="1080"></canvas>
+          <div class="toolbar">
+            <button type="button" id="download-card-btn" class="btn">Download PNG</button>
+            <button type="button" id="openai-image-btn" class="btn ghost hidden">Generate photo</button>
+          </div>
+          <div class="row"><label>Photo prompt</label><button type="button" id="copy-image-prompt-btn" class="btn ghost">Copy</button></div>
+          <textarea id="image-prompt" rows="4"></textarea>
+
+          <div class="toolbar">
+            <button type="button" id="save-item-btn" class="btn">Save to queue</button>
+            <button type="button" id="delete-item-btn" class="btn danger hidden">Delete</button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script>
+      import { boot } from '../../lib/cms/campfire';
+      boot();
+    </script>
+  </body>
+</html>
+
+<style>
+  .campfire {
+    min-height: 100vh;
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+  }
+  .wrap {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 1.5rem 1.1rem 4rem;
+  }
+  .mark {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sun);
+  }
+  .sub,
+  .help {
+    color: var(--muted);
+    line-height: 1.45;
+  }
+  .card {
+    margin-top: 1.25rem;
+    padding: 1.2rem;
+    border-radius: 1.6rem;
+    background: var(--surface);
+    box-shadow: 0 10px 0 rgb(27 22 56 / 0.06);
+  }
+  h1 {
+    margin: 0 0 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+  }
+  h2 {
+    margin: 1.4rem 0 0.4rem;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+  }
+  label,
+  .field-label {
+    display: block;
+    margin: 0.85rem 0;
+    font-weight: 800;
+  }
+  input,
+  select,
+  textarea {
+    display: block;
+    width: 100%;
+    margin-top: 0.35rem;
+    padding: 0.75rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--bg);
+    color: var(--ink);
+    font: inherit;
+  }
+  .check {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 700;
+  }
+  .check input {
+    width: auto;
+    margin: 0;
+  }
+  .checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+  }
+  .filters {
+    display: grid;
+    gap: 0.6rem;
+  }
+  @media (min-width: 640px) {
+    .filters {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+  }
+  .btn {
+    border: 0;
+    border-radius: 999px;
+    padding: 0.8rem 1.15rem;
+    background: #f0a01a;
+    color: #1b1638;
+    font-weight: 800;
+    font-family: var(--font-display);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn.ghost {
+    background: var(--chip);
+    color: var(--ink);
+  }
+  .btn.danger {
+    background: #8b2e2e;
+    color: #fffdf8;
+  }
+  .btn.active {
+    background: #1b1638;
+    color: #f3e6c8;
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 0.8rem 0;
+  }
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 1rem 0 0.4rem;
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: baseline;
+  }
+  .list {
+    display: grid;
+    gap: 0.55rem;
+    margin-top: 1rem;
+  }
+  .post-row,
+  .idea-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    text-align: left;
+    border: 0;
+    border-radius: 1.1rem;
+    padding: 0.85rem 0.95rem;
+    background: var(--chip);
+    color: var(--ink);
+    font: inherit;
+  }
+  .post-row {
+    cursor: pointer;
+    flex-direction: column;
+  }
+  .post-row span,
+  .idea-row .help {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  .idea-row {
+    align-items: center;
+  }
+  .card-canvas {
+    display: block;
+    width: 100%;
+    max-width: 22rem;
+    height: auto;
+    margin: 0.8rem 0;
+    border-radius: 1.2rem;
+    background: #1b1638;
+  }
+  #status {
+    margin: 1rem 0 0;
+    font-weight: 700;
+  }
+  #status[data-kind='err'] {
+    color: #8b2e2e;
+  }
+  #status[data-kind='busy'] {
+    color: var(--sun);
+  }
+  .hidden {
+    display: none !important;
+  }
+  .hp {
+    position: absolute;
+    left: -9999px;
+    height: 0;
+    overflow: hidden;
+  }
+  .pane label {
+    margin-bottom: 0;
+  }
+</style>

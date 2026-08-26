@@ -1,4 +1,6 @@
 User-agent: *
 Disallow: /cairn
 Disallow: /cairn/
+Disallow: /campfire
+Disallow: /campfire/
 Allow: /

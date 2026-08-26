@@ -31,6 +31,10 @@ Frontmatter: `title`, `summary`, `date`, `tags`, `ages`, `hero`, `heroAlt`, opti
 
 Launch stories are starter editorial. Place photos are free Wikimedia Commons files of the actual spots. Dark mode toggle lives in the header.
 
+## Campfire
+
+Private social desk at `/campfire` (same device lock as `/cairn`). Plan captions, YouTube scripts, and branded cards for the blog, YouTube, Facebook, Instagram, and X. The queue lives as JSON in `src/content/campfire/` so more than one person can share it. It is blocked from search engines and is not in the public nav.
+
 ## Cloudflare Pages
 
 Connect this GitHub repo in Cloudflare → Workers & Pages → Create → Pages.
