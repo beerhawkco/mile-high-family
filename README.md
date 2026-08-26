@@ -31,15 +31,23 @@ Frontmatter: `title`, `summary`, `date`, `tags`, `ages`, `hero`, `heroAlt`, opti
 
 Launch stories are starter editorial. Place photos are free Wikimedia Commons files of the actual spots. Dark mode toggle lives in the header.
 
-## Cloudflare Pages
+## Campfire
 
-Connect this GitHub repo in Cloudflare → Workers & Pages → Create → Pages.
+Private social desk at `/campfire` (same device lock as `/cairn`). Plan captions, YouTube scripts, and branded cards for the blog, YouTube, Facebook, Instagram, and X. The queue lives as JSON in `src/content/campfire/` so more than one person can share it. It is blocked from search engines and is not in the public nav.
+
+## Cloudflare
+
+The site is a static Astro build uploaded as Worker assets. [`wrangler.jsonc`](wrangler.jsonc) points at `./dist` and runs `npm run build` before `wrangler deploy` / `wrangler versions upload`.
+
+Workers Builds (this repo’s CI):
 
 - Production branch: `main`
-- Framework preset: Astro
-- Root directory: leave empty
-- Build command: `npm run build`
-- Build output directory: `dist`
-- Environment variable: `NODE_VERSION` = `22`
+- Build command: leave empty (Wrangler runs `npm run build`)
+- Deploy command: `npx wrangler deploy`
+- Preview / non-production: `npx wrangler versions upload`
 
-After the first `*.pages.dev` URL works, add the custom domain `milehighfamily.com`.
+Local upload after `npm run build`:
+
+```sh
+npx wrangler versions upload
+```
