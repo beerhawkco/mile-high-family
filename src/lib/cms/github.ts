@@ -1,3 +1,4 @@
+import { parsePost } from './mdx.ts';
 import {
   CAMPFIRE_DIR,
   CMS_BRANCH,
@@ -6,6 +7,7 @@ import {
   contentPath,
   type DeskCollection,
 } from './schema.ts';
+import type { IdeaPost } from './ideas.ts';
 
 const API = 'https://api.github.com';
 
@@ -112,6 +114,20 @@ export async function listPosts(token: string): Promise<PostIndexItem[]> {
       };
     })
     .sort((a, b) => a.path.localeCompare(b.path));
+}
+
+export async function loadPostSummaries(token: string): Promise<IdeaPost[]> {
+  const posts = (await listPosts(token)).filter((post) => post.collection !== 'kids');
+  const files = await Promise.all(posts.map((post) => getFile(token, post.path)));
+  return posts.map((post, index) => {
+    const fields = parsePost(files[index].content);
+    return {
+      collection: post.collection,
+      slug: post.slug,
+      title: fields.title,
+      summary: fields.summary,
+    };
+  });
 }
 
 export async function getFile(token: string, path: string): Promise<RepoFile> {
