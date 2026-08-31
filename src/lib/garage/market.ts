@@ -206,7 +206,16 @@ function yearFromTitle(title: string, fallback: number) {
   return match ? Number(match[1]) : fallback;
 }
 
-const LIVE_SOURCES = new Set(['Tesla Used', 'Craigslist Denver']);
+const LIVE_SOURCES = new Set([
+  'Tesla Used',
+  'Craigslist Denver',
+  'Capital One',
+  'Pop Sells',
+  'RVCrazy',
+  'RVUSA',
+  'Autotrader RV',
+  'RV Park Store',
+]);
 
 export function compsFromActiveListings(store: GarageStore, vehicleId: VehicleId): Comp[] {
   const fallbackYear = store.vehicles.find((item) => item.id === vehicleId)?.year ?? new Date().getFullYear();
