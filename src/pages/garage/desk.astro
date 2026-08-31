@@ -140,7 +140,7 @@ import '../../styles/garage.css';
         <div class="g-card" style="margin-top: 1rem">
           <div class="row">
             <h2>Add a listing</h2>
-            <p class="help">Screenshot or photo of a listing you found</p>
+            <p class="help">Paste the actual ad URL. A screenshot is optional if you have the link.</p>
           </div>
           <div id="ad-drop" class="g-drop">
             <input id="ad-file" type="file" accept="image/jpeg,image/png,image/webp,image/*" />
@@ -148,9 +148,9 @@ import '../../styles/garage.css';
             <p id="ad-drop-hint">Drop, paste, or choose a photo of the listing</p>
           </div>
           <div class="grid">
-            <label>Title<input id="ad-title" type="text" placeholder="2019 Thor 28A · Castle Rock" /></label>
+            <label>Title<input id="ad-title" type="text" placeholder="2019 Thor 28A" /></label>
             <label>Ask<input id="ad-price" type="number" step="100" /></label>
-            <label>Listing URL<input id="ad-url" type="url" placeholder="https://…" /></label>
+            <label>Ad URL<input id="ad-url" type="url" placeholder="https://www.tesla.com/used/VIN or the Craigslist post" /></label>
             <label>Source<input id="ad-source" type="text" placeholder="FB Marketplace, Craigslist…" /></label>
           </div>
           <label>Notes<textarea id="ad-notes" rows="2" placeholder="What you want remembered about this listing"></textarea></label>

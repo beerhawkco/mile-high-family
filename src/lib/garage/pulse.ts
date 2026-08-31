@@ -1,6 +1,12 @@
 import { fetchRvListings } from './fetch-rv.ts';
 import { fetchTeslaListings } from './fetch-tesla.ts';
-import { mergeListings, snapshotFromMarket, upsertComps, type IncomingListing } from './market.ts';
+import {
+  compsFromActiveListings,
+  mergeListings,
+  replaceLiveComps,
+  snapshotFromMarket,
+  type IncomingListing,
+} from './market.ts';
 import { carryForwardPulse, latestSnapshot, todayStamp, upsertSnapshot } from './store.ts';
 import type { GarageStore, VehicleId } from './types.ts';
 
@@ -21,9 +27,9 @@ function applyFetched(
   const next: GarageStore = {
     ...store,
     listings,
-    comps: upsertComps(store, newSales),
     updatedAt: new Date().toISOString(),
   };
+  next.comps = replaceLiveComps(next, vehicleId, compsFromActiveListings(next, vehicleId), newSales);
   const snapshot = snapshotFromMarket(next, vehicleId, date, {
     source: 'auto',
     needsReview: false,

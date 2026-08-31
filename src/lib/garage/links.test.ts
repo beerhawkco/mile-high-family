@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { compAdUrl, marketSearchUrl, safeHttpUrl } from './links.ts';
+import { compAdUrl, isMarketSearchUrl, listingAdUrl, marketSearchUrl, safeHttpUrl } from './links.ts';
 
 describe('garage listing links', () => {
   it('keeps http(s) listing urls and rejects junk', () => {
@@ -10,20 +10,28 @@ describe('garage listing links', () => {
     assert.equal(safeHttpUrl(''), '');
   });
 
-  it('always returns an ad url for a comp', () => {
+  it('never treats a search homepage as an ad url', () => {
+    assert.equal(isMarketSearchUrl(marketSearchUrl('tesla-model-y-lr')), true);
+    assert.equal(isMarketSearchUrl(marketSearchUrl('thor-majestic-28a', 2019)), true);
+    assert.equal(listingAdUrl('https://www.tesla.com/inventory/used/my'), '');
+    assert.equal(listingAdUrl('https://denver.craigslist.org/search/rva?query=2019%20Thor%20Majestic%2028A'), '');
+    assert.equal(listingAdUrl('https://www.tesla.com/used/5YJYGDEE1RF123456'), 'https://www.tesla.com/used/5YJYGDEE1RF123456');
+    assert.equal(listingAdUrl('https://denver.craigslist.org/rva/d/example/123.html'), 'https://denver.craigslist.org/rva/d/example/123.html');
+  });
+
+  it('links a listing title only to that ad or its photo', () => {
     assert.equal(
       compAdUrl({
         url: 'https://www.tesla.com/used/ABC123',
-        vehicleId: 'tesla-model-y-lr',
-        year: 2024,
       }),
       'https://www.tesla.com/used/ABC123',
     );
     assert.equal(
-      compAdUrl({ url: '', photo: '/api/garage/photo/pho_aaaaaaaaaaaa', vehicleId: 'tesla-model-y-lr' }),
+      compAdUrl({ url: '', photo: '/api/garage/photo/pho_aaaaaaaaaaaa' }),
       '/api/garage/photo/pho_aaaaaaaaaaaa',
     );
-    assert.equal(compAdUrl({ url: '', vehicleId: 'tesla-model-y-lr', year: 2024 }), marketSearchUrl('tesla-model-y-lr'));
-    assert.match(compAdUrl({ url: '', vehicleId: 'thor-majestic-28a', year: 2019 }), /craigslist\.org/);
+    assert.equal(compAdUrl({ url: '' }), '');
+    assert.equal(compAdUrl({ url: 'https://www.tesla.com/inventory/used/my' }), '');
+    assert.equal(compAdUrl({ url: marketSearchUrl('thor-majestic-28a', 2019) }), '');
   });
 });

@@ -18,6 +18,7 @@ describe('garage store', () => {
     assert.equal(parsed.vehicles.length, 2);
     assert.ok(parsed.snapshots.length >= 20);
     assert.equal(latestSnapshot(parsed, 'tesla-model-y-lr')?.date, '2026-08-31');
+    assert.equal(parsed.comps.length, 0);
   });
 
   it('rejects a broken store', () => {
