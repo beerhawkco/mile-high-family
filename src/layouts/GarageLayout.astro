@@ -1,13 +1,16 @@
 ---
+import GarageChrome from '../components/GarageChrome.astro';
 import '../styles/global.css';
+import '../styles/garage.css';
 
 interface Props {
   title: string;
   view: 'home' | 'cars' | 'rvs' | 'vehicle';
   slug?: string;
+  section?: 'cars' | 'rvs';
 }
 
-const { title, view, slug = '' } = Astro.props;
+const { title, view, slug = '', section = '' } = Astro.props;
 ---
 
 <!doctype html>
@@ -26,43 +29,54 @@ const { title, view, slug = '' } = Astro.props;
       href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
       rel="stylesheet"
     />
+    <script is:inline>
+      (function () {
+        try {
+          var saved = localStorage.getItem('mhf-theme');
+          var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body class="min-h-screen bg-bg font-body text-ink" data-garage-view={view} data-garage-slug={slug}>
-    <main class="mx-auto max-w-6xl px-5 py-8">
-      <p class="eyebrow">Private garage</p>
-      <p id="status" class="mt-2 font-extrabold" data-kind="ok">Locked.</p>
-
-      <section id="login-panel" class="mt-6 max-w-lg squash bg-surface p-6 shadow-sm">
-        <h1 class="font-display text-3xl font-extrabold">Sign in</h1>
-        <p class="mt-2 text-muted">Username and password. This whole garage stays off the public site.</p>
-        <form id="login-form" class="mt-4">
-          <label class="sr-only">Leave blank<input id="website" name="website" tabindex="-1" autocomplete="off" /></label>
-          <label class="mt-3 block font-extrabold">Username<input id="username" class="mt-1 w-full rounded-2xl border border-line bg-bg px-3 py-3" type="text" autocomplete="username" required /></label>
-          <label class="mt-3 block font-extrabold">Password<input id="password" class="mt-1 w-full rounded-2xl border border-line bg-bg px-3 py-3" type="password" autocomplete="current-password" required /></label>
-          <button type="submit" class="btn-curve mt-5 bg-sun px-6 py-3 font-display font-extrabold text-navy">Sign in</button>
+  <body
+    class="g-page font-body text-ink"
+    data-garage-view={view}
+    data-garage-slug={slug}
+    data-garage-section={section}
+  >
+    <GarageChrome
+      kicker="Private garage"
+      heading="Market pulse"
+      lede="Sold prints, current asks, and days listed before sale — 250 miles of Denver."
+    />
+    <main id="garage-main" class="g-wrap">
+      <section id="login-panel" class="g-card g-gate tilt-l">
+        <p class="g-badge">Locked</p>
+        <h2 class="mt-2 font-display text-3xl font-extrabold">Sign in</h2>
+        <p class="help mt-2">Username and password. This whole garage stays off the public site.</p>
+        <form id="login-form" class="g-form mt-3">
+          <label class="hp">Leave blank<input id="website" name="website" tabindex="-1" autocomplete="off" /></label>
+          <label>
+            Username
+            <input id="username" type="text" autocomplete="username" required />
+          </label>
+          <label>
+            Password
+            <input id="password" type="password" autocomplete="current-password" required />
+          </label>
+          <button type="submit" class="g-btn mt-2">Sign in</button>
         </form>
       </section>
 
       <section id="app-panel" class="hidden">
-        <div class="mt-4 flex flex-wrap items-center gap-2">
-          <a class="btn-curve bg-chip px-4 py-2 font-extrabold no-underline" href="/garage/">Summary</a>
-          <a class="btn-curve bg-chip px-4 py-2 font-extrabold no-underline" href="/garage/cars/">Cars</a>
-          <a class="btn-curve bg-chip px-4 py-2 font-extrabold no-underline" href="/garage/rvs/">RVs</a>
-          <a class="btn-curve bg-chip px-4 py-2 font-extrabold no-underline" href="/garage/desk/">Desk</a>
-          <button type="button" id="logout-btn" class="btn-curve bg-navy px-4 py-2 font-extrabold text-cream">Sign out</button>
-        </div>
-        <div id="garage-app" class="mt-8"></div>
+        <div id="garage-app"></div>
       </section>
     </main>
+    <p class="g-foot">Private notebook · not linked from the public site · Denver 250-mile ring</p>
     <script>
       import { bootGarage } from '../lib/garage/app';
       bootGarage();
     </script>
   </body>
 </html>
-
-<style>
-  #status[data-kind='err'] { color: #8b2e2e; }
-  #status[data-kind='busy'] { color: #e87820; }
-  .hidden { display: none !important; }
-</style>

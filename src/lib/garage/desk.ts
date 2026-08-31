@@ -378,6 +378,7 @@ function stashEdits() {
 }
 
 async function afterUnlock(user: string) {
+  document.body.classList.remove('g-locked');
   setHidden('login-panel', true);
   setHidden('app-panel', false);
   $('signed-in').textContent = `Signed in as ${user}`;
@@ -418,6 +419,7 @@ async function logout() {
   }
   setHidden('app-panel', true);
   setHidden('login-panel', false);
+  document.body.classList.add('g-locked');
   setStatus('Signed out.');
 }
 
