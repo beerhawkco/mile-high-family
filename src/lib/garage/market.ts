@@ -183,7 +183,7 @@ export function snapshotFromMarket(
     sentiment: extras.sentiment ?? previous?.sentiment ?? 'warm',
     sentimentScore: extras.sentimentScore ?? previous?.sentimentScore ?? 0,
     trend: trendFromDelta(previous ? askingMedian - previous.askingMedian : null),
-    headline: extras.headline ?? previous?.headline ?? `${DENVER_MARKET.radiusMiles}-mile Denver pulse`,
+    headline: extras.headline ?? previous?.headline ?? `Denver prices, ${DENVER_MARKET.radiusMiles} miles`,
     brief: extras.brief ?? previous?.brief ?? '',
     source: extras.source ?? 'auto',
     needsReview: extras.needsReview ?? false,

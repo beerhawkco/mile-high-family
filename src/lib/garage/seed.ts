@@ -1,4 +1,5 @@
 import { snapshotId } from './ids.ts';
+import { marketSearchUrl } from './links.ts';
 import { addDays, emptyStore } from './store.ts';
 import type { GarageStore, SentimentNote, Snapshot, Trend, Vehicle, VehicleId } from './types.ts';
 
@@ -84,7 +85,7 @@ const vehicles: Vehicle[] = [
       listingUrl: '',
       soldPrice: null,
       soldOn: '',
-      notes: 'Set our miles and ask on the desk. Compare to sold prints first.',
+      notes: 'Set our miles and ask on the desk. Compare to sold prices first.',
     },
   },
 ];
@@ -351,7 +352,7 @@ const comps = [
     listedOn: '2026-08-16',
     daysListed: 9,
     status: 'sold',
-    notes: 'Nine days on market. Good sold print.',
+    notes: 'Nine days on market. Good sold price.',
   },
   {
     id: 'cmp_y_05',
@@ -527,6 +528,7 @@ export function createSeedStore(end = SEED_END, start = SEED_START): GarageStore
     daysListed: null,
     photo: '',
     ...comp,
+    url: comp.url || marketSearchUrl(comp.vehicleId, comp.year),
   }));
   store.sentiments = sentiments.filter((note) => note.date <= end);
   return store;
@@ -534,6 +536,6 @@ export function createSeedStore(end = SEED_END, start = SEED_START): GarageStore
 
 export function seedHeadline(vehicleId: VehicleId): string {
   return vehicleId === 'thor-majestic-28a'
-    ? '2019 Thor Majestic 28A market pulse'
-    : '2024 Tesla Model Y Long Range market pulse';
+    ? '2019 Thor Majestic 28A Denver prices'
+    : '2024 Tesla Model Y Long Range Denver prices';
 }

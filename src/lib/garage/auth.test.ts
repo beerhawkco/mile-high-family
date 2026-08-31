@@ -76,6 +76,35 @@ describe('garage http', () => {
     assert.equal(parseStore(await store.json()).vehicles.length, 2);
   });
 
+  it('tells the desk when saves cannot persist', async () => {
+    const seed = createSeedStore();
+    const runtime = {
+      adminUser: 'ada',
+      adminPassword: 'correct-horse',
+      sessionSecret: 'session-secret-16',
+      load: async () => seed,
+      save: async () => undefined,
+      canSave: false,
+      canPhotos: false,
+    };
+    const login = await handleGarageRequest(
+      new Request('http://localhost/api/garage/login', {
+        method: 'POST',
+        body: JSON.stringify({ username: 'ada', password: 'correct-horse' }),
+      }),
+      runtime,
+    );
+    const cookie = login.headers.get('set-cookie') ?? '';
+    const session = await handleGarageRequest(
+      new Request('http://localhost/api/garage/session', { headers: { cookie } }),
+      runtime,
+    );
+    const body = (await session.json()) as { canSave?: boolean; canPhotos?: boolean };
+    assert.equal(body.canSave, false);
+    assert.equal(body.canPhotos, false);
+    assert.doesNotMatch(JSON.stringify(body), /github_pat_|GARAGE_GITHUB_TOKEN/i);
+  });
+
   it('does not expose a GitHub token prompt on the public API', async () => {
     const seed = createSeedStore();
     const runtime = {

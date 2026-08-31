@@ -708,6 +708,28 @@ body[data-garage-view='desk'] .g-nav a[data-nav='desk'] {
   margin-right: 0.5rem;
 }
 
+.g-ad-link {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+  text-decoration-color: color-mix(in srgb, var(--terra) 70%, transparent);
+}
+
+.g-table .g-ad-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.g-table .g-ad-link .g-thumb {
+  margin-right: 0;
+}
+
+.g-ad-link:hover {
+  color: var(--terra);
+}
+
 .desk h2,
 #login-panel h2 {
   margin: 0;

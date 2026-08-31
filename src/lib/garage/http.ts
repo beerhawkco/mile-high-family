@@ -20,6 +20,8 @@ export type GarageRuntime = {
   save: (store: GarageStore) => Promise<void>;
   putPhoto?: (id: string, encoded: string) => Promise<void>;
   getPhoto?: (id: string) => Promise<string | null>;
+  canSave?: boolean;
+  canPhotos?: boolean;
 };
 
 function json(data: unknown, status = 200, headers?: HeadersInit) {
@@ -53,7 +55,16 @@ export async function handleGarageRequest(request: Request, runtime: GarageRunti
 
   if (path === '/api/garage/session' && request.method === 'GET') {
     const session = await requireUser(request, runtime);
-    return json(session ? { ok: true, user: session.user } : { ok: false });
+    return json(
+      session
+        ? {
+            ok: true,
+            user: session.user,
+            canSave: runtime.canSave !== false,
+            canPhotos: runtime.canPhotos !== false,
+          }
+        : { ok: false },
+    );
   }
 
   if (path === '/api/garage/login' && request.method === 'POST') {
@@ -68,7 +79,16 @@ export async function handleGarageRequest(request: Request, runtime: GarageRunti
       return error('Username or password is wrong.', 401);
     }
     const token = await signSession(runtime.sessionSecret, runtime.adminUser);
-    return json({ ok: true, user: runtime.adminUser }, 200, { 'set-cookie': cookieHeader(token, secure) });
+    return json(
+      {
+        ok: true,
+        user: runtime.adminUser,
+        canSave: runtime.canSave !== false,
+        canPhotos: runtime.canPhotos !== false,
+      },
+      200,
+      { 'set-cookie': cookieHeader(token, secure) },
+    );
   }
 
   if (path === '/api/garage/logout' && request.method === 'POST') {
@@ -103,7 +123,7 @@ export async function handleGarageRequest(request: Request, runtime: GarageRunti
 
   if (path === '/api/garage/photo' && request.method === 'POST') {
     if (!(await requireUser(request, runtime))) return error('Sign in first.', 401);
-    if (!runtime.putPhoto) return error('Photo storage is not configured on this host.', 503);
+    if (!runtime.putPhoto) return error('Listing photos need a KV store named GARAGE on this Worker.', 503);
     let file: File | null = null;
     try {
       const form = await request.formData();
