@@ -70,6 +70,12 @@
   left: 16%;
 }
 
+@media (max-width: 700px) {
+  .g-hero .blob-sky {
+    display: none;
+  }
+}
+
 .g-sticky {
   position: sticky;
   top: 0;

@@ -79,6 +79,10 @@ function marketAskSeries(store: GarageStore, ids?: string[]) {
     .map(([, values]) => Math.round(values.reduce((sum, value) => sum + value, 0) / values.length));
 }
 
+function daysText(value: number | null | undefined) {
+  return value == null ? '—' : `${value}d`;
+}
+
 function kpi(label: string, value: string, hint: string, extra = '', tilt: 'tilt-l' | 'tilt-r' = 'tilt-l') {
   return `
     <article class="g-card g-kpi ${tilt}">
@@ -109,8 +113,8 @@ function card(vehicle: Vehicle, store: GarageStore, tilt: 'tilt-l' | 'tilt-r') {
       <p class="g-note mt-1">${vehicle.summary}</p>
       <div class="g-kpis" style="margin: 0.9rem 0 0">
         ${kpi('Our ask', dollars(ourAsk), `${OWNED_LABEL[vehicle.owned.status]}${daysOurs != null ? ` · ${daysOurs}d listed` : ''}`)}
-        ${kpi('Sold median', dollars(sold), `${latest?.soldCount ?? 0} sold · ${latest?.medianDaysToSale ?? '—'}d to sale`, deltaChip(sold, prior?.soldMedian), 'tilt-r')}
-        ${kpi('Live ask', dollars(ask), `${latest?.listingCount ?? 0} listings · ${latest?.daysOnMarket ?? '—'}d DOM`, deltaChip(ask, prior?.askingMedian))}
+        ${kpi('Sold median', dollars(sold), `${latest?.soldCount ?? 0} sold · ${daysText(latest?.medianDaysToSale)} to sale`, deltaChip(sold, prior?.soldMedian), 'tilt-r')}
+        ${kpi('Live ask', dollars(ask), `${latest?.listingCount ?? 0} listings · ${daysText(latest?.daysOnMarket)} DOM`, deltaChip(ask, prior?.askingMedian))}
         ${kpi('Ask vs sold', signedDollars(vsSold), `vs live ask ${signedDollars(vsAsk)}`, '', 'tilt-r')}
       </div>
       ${sparkSvg(asks)}
@@ -137,7 +141,7 @@ function portfolio(store: GarageStore) {
       ${kpi('Book ask', dollars(avg(ourAsks)), `${units.length} units in the notebook`, '', 'tilt-l')}
       ${kpi('Sold median', dollars(avg(solds)), 'Recent sold prints, both desks', deltaChip(avg(solds), avg(priorSolds)), 'tilt-r')}
       ${kpi('Live asking', dollars(avg(liveAsks)), `${listings} listings in the ring`, deltaChip(avg(liveAsks), avg(priorAsks)), 'tilt-l')}
-      ${kpi('Days to sale', days.length ? `${avg(days)}d` : '—', `${store.market.radiusMiles} mi of ${store.market.center}`, '', 'tilt-r')}
+      ${kpi('Days to sale', daysText(avg(days)), `${store.market.radiusMiles} mi of ${store.market.center}`, '', 'tilt-r')}
     </div>
     ${sparkSvg(marketAskSeries(store))}
   `;
@@ -173,7 +177,7 @@ function renderSection(store: GarageStore, section: 'cars' | 'rvs') {
       ${kpi('Units', String(list.length), label, '', 'tilt-l')}
       ${kpi('Live listings', String(list.reduce((sum, vehicle) => sum + (latestSnapshot(store, vehicle.id)?.listingCount ?? 0), 0)), 'Current asking set', '', 'tilt-r')}
       ${kpi('Sold median', dollars(latestSnapshot(store, list[0]?.id ?? 'tesla-model-y-lr')?.soldMedian), 'Latest pulse on the first unit', '', 'tilt-l')}
-      ${kpi('Days to sale', `${latestSnapshot(store, list[0]?.id ?? 'tesla-model-y-lr')?.medianDaysToSale ?? '—'}d`, 'Median days listed before sale', '', 'tilt-r')}
+      ${kpi('Days to sale', daysText(latestSnapshot(store, list[0]?.id ?? 'tesla-model-y-lr')?.medianDaysToSale), 'Median days listed before sale', '', 'tilt-r')}
     </div>
     ${sparkSvg(marketAskSeries(store, ids))}
     <div class="g-grid" style="margin-top: 1rem">
@@ -205,7 +209,7 @@ function renderVehicle(store: GarageStore, slug: string) {
   return `
     <div class="g-kpis">
       ${kpi('Our ask', dollars(ourAsk), `${OWNED_LABEL[vehicle.owned.status]} · target ${dollars(vehicle.owned.targetPrice)}`, '', 'tilt-l')}
-      ${kpi('Sold median', dollars(latest?.soldMedian), `${latest?.soldCount ?? 0} sales · ${latest?.medianDaysToSale ?? '—'}d to sale`, deltaChip(latest?.soldMedian, prior?.soldMedian), 'tilt-r')}
+      ${kpi('Sold median', dollars(latest?.soldMedian), `${latest?.soldCount ?? 0} sales · ${daysText(latest?.medianDaysToSale)} to sale`, deltaChip(latest?.soldMedian, prior?.soldMedian), 'tilt-r')}
       ${kpi('Live ask', dollars(latest?.askingMedian), `${latest?.askingLow ? `${dollars(latest.askingLow)}–${dollars(latest.askingHigh)}` : '—'} · ${latest?.listingCount ?? 0} live`, deltaChip(latest?.askingMedian, prior?.askingMedian), 'tilt-l')}
       ${kpi('Ask vs sold', signedDollars(vsMarket(ourAsk, latest?.soldMedian ?? null)), `vs ask ${signedDollars(vsMarket(ourAsk, latest?.askingMedian ?? null))}`, '', 'tilt-r')}
     </div>
