@@ -1,11 +1,11 @@
 import { gaugeDegrees, gaugeNeedle, medianSeries, sparkPath, sparkPoints } from './charts.ts';
 import { OWNED_LABEL, prettyDate } from './labels.ts';
-import { vehiclePath } from './market.ts';
+import { ourDaysListed, vehiclePath, vsMarket } from './market.ts';
 import { compactDollars, dollars, signedDollars } from './money.ts';
+import { compAdUrl } from './links.ts';
 import { safePhotoSrc } from './photos.ts';
-import { ourDaysListed, vsMarket } from './market.ts';
 import { compsFor, latestSnapshot, parseStore, sentimentsFor, snapshotsFor, todayStamp } from './store.ts';
-import type { GarageStore, Vehicle } from './types.ts';
+import type { Comp, GarageStore, Vehicle } from './types.ts';
 
 function $(id: string) {
   const node = document.getElementById(id);
@@ -35,7 +35,7 @@ function setText(id: string, value: string) {
 function setHero(input: { line1: string; line2: string; accent?: string; meta?: string; lede: string }) {
   setText('g-line-1', input.line1);
   setText('g-line-2', input.line2);
-  setText('g-line-3', input.accent ?? 'Price tracker');
+  setText('g-line-3', input.accent ?? '250 mi');
   setText('g-meta', input.meta ?? '80202 · 250 mi');
   setText('g-lede', input.lede);
 }
@@ -123,6 +123,17 @@ function daysText(value: number | null | undefined) {
   return value == null ? '—' : `${value}d`;
 }
 
+function escapeHtml(value: string) {
+  return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+}
+
+function listingCell(comp: Comp, extra = '') {
+  const href = escapeHtml(compAdUrl(comp));
+  const photo = safePhotoSrc(comp.photo);
+  const thumb = photo ? `<img class="g-thumb" src="${escapeHtml(photo)}" alt="" />` : '';
+  return `<td><a class="g-ad-link" href="${href}" target="_blank" rel="noopener noreferrer">${thumb}<span>${escapeHtml(comp.title)}</span></a>${extra}</td>`;
+}
+
 function marketMeta(store: GarageStore, date?: string) {
   return `80202 · ${store.market.radiusMiles} mi · ${prettyDate(date ?? todayStamp())}`;
 }
@@ -152,7 +163,7 @@ function tracker(vehicle: Vehicle, store: GarageStore) {
         <p class="g-stack">
           <span>${vehicle.year}</span>
           <span>${vehicle.make}</span>
-          <span class="accent">Price tracker</span>
+          <span class="accent">Denver</span>
         </p>
         <p class="g-model">${vehicle.model} ${vehicle.trim} · ${vehicle.intent === 'buy' ? 'Watching' : 'For sale'}</p>
         <p class="g-meta-pill">${marketMeta(store, latest?.date)}</p>
@@ -162,7 +173,7 @@ function tracker(vehicle: Vehicle, store: GarageStore) {
         <div class="g-panel-top">
           <div>
             <p class="g-hero-num">${live || '—'}</p>
-            <p class="g-hero-label">Live asks</p>
+            <p class="g-hero-label">For sale now</p>
           </div>
           ${gaugeSvg(latest?.sentimentScore)}
         </div>
@@ -171,7 +182,7 @@ function tracker(vehicle: Vehicle, store: GarageStore) {
         <div class="g-panel-metrics">
           <span>Sold ${compactDollars(sold)}</span>
           <span>Ask ${compactDollars(ask)}</span>
-          <span>Book ${compactDollars(ourAsk)}</span>
+          <span>Our ask ${compactDollars(ourAsk)}</span>
           <span>${OWNED_LABEL[vehicle.owned.status]}${daysOurs != null ? ` · ${daysOurs}d` : ''}</span>
         </div>
       </div>
@@ -197,9 +208,9 @@ function portfolio(store: GarageStore) {
   const heat = snaps.map((snap) => snap?.sentimentScore).filter((value): value is number => value != null);
   return `
     <div class="g-strip">
-      ${stat('Book ask', dollars(avg(ourAsks)), `${units.length} units in the book`)}
-      ${stat('Sold median', dollars(avg(solds)), 'Recent sold prints', deltaChip(avg(solds), avg(priorSolds)))}
-      ${stat('Live asking', dollars(avg(liveAsks)), `${listings} listings in the ring`, deltaChip(avg(liveAsks), avg(priorAsks)))}
+      ${stat('Our ask', dollars(avg(ourAsks)), `${units.length} vehicles we're selling`)}
+      ${stat('Sold median', dollars(avg(solds)), 'Recent sold prices', deltaChip(avg(solds), avg(priorSolds)))}
+      ${stat('Asking now', dollars(avg(liveAsks)), `${listings} listings near Denver`, deltaChip(avg(liveAsks), avg(priorAsks)))}
       ${stat('Days to sale', daysText(avg(days)), `${store.market.radiusMiles} mi of ${store.market.center}`)}
     </div>
     <div class="g-tracker" style="margin-bottom:1.1rem">
@@ -207,7 +218,7 @@ function portfolio(store: GarageStore) {
         <p class="g-stack">
           <span>Front</span>
           <span>Range</span>
-          <span class="accent">Market tape</span>
+          <span class="accent">Denver</span>
         </p>
         <p class="g-meta-pill">${marketMeta(store)}</p>
       </div>
@@ -215,7 +226,7 @@ function portfolio(store: GarageStore) {
         <div class="g-panel-top">
           <div>
             <p class="g-hero-num">${listings || '—'}</p>
-            <p class="g-hero-label">Combined live asks</p>
+            <p class="g-hero-label">For sale now</p>
           </div>
           ${gaugeSvg(avg(heat))}
         </div>
@@ -234,17 +245,17 @@ function renderHome(store: GarageStore) {
   const cars = store.vehicles.filter((item) => item.kind === 'car');
   const rvs = store.vehicles.filter((item) => item.kind === 'rv');
   setHero({
-    line1: 'Denver',
-    line2: '250mi',
-    accent: 'Price tracker',
+    line1: 'Garage',
+    line2: 'Denver',
+    accent: '250 mi',
     meta: marketMeta(store),
-    lede: 'Sold prints, live asks, and days listed before sale. Open a unit to work one market.',
+    lede: 'What similar Teslas and RVs are asking and selling for.',
   });
   return `
     ${portfolio(store)}
     <div class="g-section">
-      <h2>Units</h2>
-      <p>Cars and RVs</p>
+      <h2>Vehicles</h2>
+      <p>The Tesla and the Thor</p>
     </div>
     <div class="g-grid two">
       ${[...cars, ...rvs].map((vehicle) => tracker(vehicle, store)).join('')}
@@ -260,9 +271,9 @@ function renderSection(store: GarageStore, section: 'cars' | 'rvs') {
       ? 'When you shop the next RV, add it on the desk as “Watching to buy”.'
       : 'Add another car on the desk when you need it.';
   setHero({
-    line1: 'Front',
-    line2: 'Range',
-    accent: `${label} desk`,
+    line1: 'Garage',
+    line2: label,
+    accent: 'Denver',
     meta: marketMeta(store),
     lede: empty,
   });
@@ -271,9 +282,9 @@ function renderSection(store: GarageStore, section: 'cars' | 'rvs') {
   const first = latestSnapshot(store, list[0]?.id ?? 'tesla-model-y-lr');
   return `
     <div class="g-strip">
-      ${stat('Units', String(list.length), label)}
-      ${stat('Live listings', String(listings), 'Current asking set')}
-      ${stat('Sold median', dollars(first?.soldMedian), 'Latest pulse')}
+      ${stat('Vehicles', String(list.length), label)}
+      ${stat('Live listings', String(listings), 'For sale now')}
+      ${stat('Sold median', dollars(first?.soldMedian), 'Latest Denver prices')}
       ${stat('Days to sale', daysText(first?.medianDaysToSale), 'Median days listed')}
     </div>
     ${sparkSvg(marketAskSeries(store, ids))}
@@ -286,7 +297,7 @@ function renderSection(store: GarageStore, section: 'cars' | 'rvs') {
 function renderVehicle(store: GarageStore, slug: string) {
   const vehicle = store.vehicles.find((item) => item.id === slug);
   if (!vehicle) {
-    setHero({ line1: 'Garage', line2: 'Unknown', lede: 'That slug is not in the notebook.' });
+    setHero({ line1: 'Garage', line2: 'Unknown', lede: 'That vehicle is not in the garage.' });
     return `<p class="g-alert">Unknown vehicle.</p>`;
   }
   const latest = latestSnapshot(store, vehicle.id);
@@ -300,7 +311,7 @@ function renderVehicle(store: GarageStore, slug: string) {
   setHero({
     line1: String(vehicle.year),
     line2: vehicle.make,
-    accent: 'Price tracker',
+    accent: 'Denver',
     meta: marketMeta(store, latest?.date),
     lede: `${vehicle.summary} ${latest?.brief ?? ''}`.trim(),
   });
@@ -309,12 +320,12 @@ function renderVehicle(store: GarageStore, slug: string) {
     <div class="g-strip" style="margin-top:1.1rem">
       ${stat('Our ask', dollars(ourAsk), `${OWNED_LABEL[vehicle.owned.status]} · target ${dollars(vehicle.owned.targetPrice)}`)}
       ${stat('Sold median', dollars(latest?.soldMedian), `${latest?.soldCount ?? 0} sales · ${daysText(latest?.medianDaysToSale)} to sale`, deltaChip(latest?.soldMedian, prior?.soldMedian))}
-      ${stat('Live ask', dollars(latest?.askingMedian), `${latest?.askingLow ? `${dollars(latest.askingLow)}–${dollars(latest.askingHigh)}` : '—'} · ${latest?.listingCount ?? 0} live`, deltaChip(latest?.askingMedian, prior?.askingMedian))}
+      ${stat('Asking now', dollars(latest?.askingMedian), `${latest?.askingLow ? `${dollars(latest.askingLow)}–${dollars(latest.askingHigh)}` : '—'} · ${latest?.listingCount ?? 0} for sale`, deltaChip(latest?.askingMedian, prior?.askingMedian))}
       ${stat('Ask vs sold', signedDollars(vsMarket(ourAsk, latest?.soldMedian ?? null)), `vs ask ${signedDollars(vsMarket(ourAsk, latest?.askingMedian ?? null))}`)}
     </div>
     <div class="g-section">
-      <h2>Sold · days listed</h2>
-      <p>${sold.length} prints</p>
+      <h2>Sold listings</h2>
+      <p>${sold.length} sold prices</p>
     </div>
     <div class="g-card">
       <div class="g-table-wrap">
@@ -328,21 +339,21 @@ function renderVehicle(store: GarageStore, slug: string) {
                 .map(
                   (comp) => `
               <tr>
-                <td>${comp.photo && safePhotoSrc(comp.photo) ? `<img class="g-thumb" src="${safePhotoSrc(comp.photo)}" alt="" />` : ''}${comp.title}<p class="sub">${comp.notes}</p></td>
+                ${listingCell(comp, comp.notes ? `<p class="sub">${escapeHtml(comp.notes)}</p>` : '')}
                 <td class="num">${dollars(comp.soldPrice ?? comp.price)}</td>
                 <td class="num">${daysText(comp.daysListed)}</td>
                 <td>${comp.location}</td>
               </tr>`,
                 )
-                .join('') || `<tr><td class="g-note" colspan="4">No sold prints yet. Fetch the market or add one on the desk.</td></tr>`
+                .join('') || `<tr><td class="g-note" colspan="4">No sold listings yet. Get Denver prices or add one on the desk.</td></tr>`
             }
           </tbody>
         </table>
       </div>
     </div>
     <div class="g-section">
-      <h2>Current asking</h2>
-      <p>${asking.length} live</p>
+      <h2>For sale now</h2>
+      <p>${asking.length} listings</p>
     </div>
     <div class="g-card">
       <div class="g-table-wrap">
@@ -355,7 +366,7 @@ function renderVehicle(store: GarageStore, slug: string) {
               .map(
                 (comp) => `
               <tr>
-                <td>${comp.photo && safePhotoSrc(comp.photo) ? `<img class="g-thumb" src="${safePhotoSrc(comp.photo)}" alt="" />` : ''}${comp.title}</td>
+                ${listingCell(comp)}
                 <td class="num">${dollars(comp.price)}</td>
                 <td class="num">${comp.miles ?? '—'}</td>
                 <td>${comp.location}<p class="sub">${prettyDate(comp.listedOn)}</p></td>
@@ -366,7 +377,7 @@ function renderVehicle(store: GarageStore, slug: string) {
         </table>
       </div>
     </div>
-    <p class="g-note" style="margin-top: 1rem">${history.length} daily pulses on file. Market: ${store.market.radiusMiles} miles of ${store.market.center}.</p>
+    <p class="g-note" style="margin-top: 1rem">${history.length} days of Denver prices on file. Market: ${store.market.radiusMiles} miles of ${store.market.center}.</p>
     ${
       notes.length
         ? `<div class="g-section"><h2>Notes</h2><p>${notes.length}</p></div><div class="g-grid two">${notes
@@ -394,7 +405,7 @@ async function afterUnlock(user: string) {
   setLocked(false);
   setHidden('login-panel', true);
   setHidden('app-panel', false);
-  setStatus(`Signed in as ${user}. Private — not on the public site.`, 'ok');
+  setStatus(`Signed in as ${user}.`, 'ok');
   paint(parseStore(await api('/api/garage/store')));
 }
 
@@ -423,10 +434,10 @@ async function logout() {
   setHidden('login-panel', false);
   setLocked(true);
   setHero({
-    line1: 'Denver',
-    line2: '250mi',
-    accent: 'Price tracker',
-    lede: 'Sold prints, live asks, and days listed before sale.',
+    line1: 'Garage',
+    line2: 'Denver',
+    accent: '250 mi',
+    lede: 'What similar Teslas and RVs are asking and selling for.',
   });
   setStatus('Signed out.');
 }

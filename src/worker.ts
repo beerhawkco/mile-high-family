@@ -49,7 +49,7 @@ async function saveStore(env: Env, store: GarageStore) {
     return;
   }
   throw new Error(
-    'Admin saves need a GARAGE KV namespace or a GARAGE_GITHUB_TOKEN secret. The token stays on the server — it is never pasted in the browser.',
+    "Can't save until this Worker has a KV store named GARAGE. In Cloudflare, open this Worker → Settings → Bindings → KV. Add a binding named GARAGE, then redeploy.",
   );
 }
 
@@ -93,8 +93,14 @@ function runtime(env: Env) {
     sessionSecret: env.GARAGE_SESSION_SECRET || '',
     load: () => loadStore(env),
     save: (store: GarageStore) => saveStore(env, store),
+    canSave: Boolean(env.GARAGE || env.GARAGE_GITHUB_TOKEN),
+    canPhotos: Boolean(env.GARAGE),
     putPhoto: async (id: string, encoded: string) => {
-      if (!env.GARAGE) throw new Error('Bind a GARAGE KV namespace to keep ad photos.');
+      if (!env.GARAGE) {
+        throw new Error(
+          "Can't keep photos until this Worker has a KV store named GARAGE. In Cloudflare, open this Worker → Settings → Bindings → KV. Add a binding named GARAGE, then redeploy.",
+        );
+      }
       await env.GARAGE.put(PHOTO_KEY(id), encoded);
     },
     getPhoto: async (id: string) => {

@@ -34,15 +34,15 @@ import '../../styles/garage.css';
     <GarageChrome
       line1="Garage"
       line2="Desk"
-      accent="Market pulse"
+      accent="Denver"
       meta="80202 · 250 mi"
-      lede="Edit units, comps, and the Denver tape. Username and password only."
+      lede="Change our numbers or add a listing you found."
     />
     <main id="garage-main" class="g-wrap">
       <section id="login-panel" class="g-card g-gate">
         <p class="g-meta-pill">Locked</p>
         <h2>Sign in</h2>
-        <p class="help">Normal admin login. You will never be asked for a personal access token here.</p>
+        <p class="help">Username and password. Stays off the public site.</p>
         <form id="login-form" class="g-form">
           <label class="hp">Leave blank<input id="website" name="website" tabindex="-1" autocomplete="off" /></label>
           <label>Username<input id="username" type="text" autocomplete="username" required /></label>
@@ -53,23 +53,27 @@ import '../../styles/garage.css';
 
       <section id="app-panel" class="hidden">
         <p id="signed-in" class="help"></p>
+        <p id="persist-warn" class="g-alert hidden">
+          Can't save from this site until this Worker has a KV store named GARAGE. In Cloudflare, open this Worker →
+          Settings → Bindings → KV. Add a binding named GARAGE, then redeploy.
+        </p>
 
         <div class="g-card" style="margin-top: 1rem">
           <div class="row">
-            <h2>Pulse controls</h2>
-            <p class="help">Fetch, review, then save</p>
+            <h2>Update prices</h2>
+            <p class="help">Get Denver prices, look them over, then save.</p>
           </div>
           <label>Vehicle
             <select id="vehicle"></select>
           </label>
           <div class="toolbar">
-            <button type="button" id="pulse-btn" class="btn ghost">Fetch Denver 250-mile market</button>
-            <button type="button" id="save-btn" class="btn">Save all changes</button>
+            <button type="button" id="pulse-btn" class="btn ghost">Get Denver prices</button>
+            <button type="button" id="save-btn" class="btn">Save</button>
           </div>
         </div>
 
         <div class="g-card" style="margin-top: 1rem">
-          <h2>This unit</h2>
+          <h2>Our vehicle</h2>
           <label>Intent
             <select id="vehicle-intent">
               <option value="sell">Selling ours</option>
@@ -100,7 +104,7 @@ import '../../styles/garage.css';
         </div>
 
         <div class="g-card" style="margin-top: 1rem">
-          <h2>Market snapshot</h2>
+          <h2>Today's numbers</h2>
           <div class="grid">
             <label>Date<input id="snap-date" type="date" /></label>
             <label>Median ask<input id="snap-median" type="number" step="100" /></label>
@@ -135,44 +139,44 @@ import '../../styles/garage.css';
 
         <div class="g-card" style="margin-top: 1rem">
           <div class="row">
-            <h2>Track an ad</h2>
-            <p class="help">Screenshot or listing photo of an ad you want followed</p>
+            <h2>Add a listing</h2>
+            <p class="help">Screenshot or photo of a listing you found</p>
           </div>
           <div id="ad-drop" class="g-drop">
             <input id="ad-file" type="file" accept="image/jpeg,image/png,image/webp,image/*" />
             <img id="ad-preview" alt="" class="g-preview hidden" />
-            <p id="ad-drop-hint">Drop, paste, or choose a photo of the ad</p>
+            <p id="ad-drop-hint">Drop, paste, or choose a photo of the listing</p>
           </div>
           <div class="grid">
             <label>Title<input id="ad-title" type="text" placeholder="2019 Thor 28A · Castle Rock" /></label>
             <label>Ask<input id="ad-price" type="number" step="100" /></label>
-            <label>Ad URL<input id="ad-url" type="url" placeholder="https://…" /></label>
+            <label>Listing URL<input id="ad-url" type="url" placeholder="https://…" /></label>
             <label>Source<input id="ad-source" type="text" placeholder="FB Marketplace, Craigslist…" /></label>
           </div>
-          <label>Notes<textarea id="ad-notes" rows="2" placeholder="What you want remembered about this ad"></textarea></label>
+          <label>Notes<textarea id="ad-notes" rows="2" placeholder="What you want remembered about this listing"></textarea></label>
           <div class="toolbar">
-            <button type="button" id="track-ad-btn" class="btn">Track this ad</button>
+            <button type="button" id="track-ad-btn" class="btn">Add this listing</button>
           </div>
         </div>
 
         <div class="g-card" style="margin-top: 1rem">
           <div class="row">
-            <h2>Comps</h2>
-            <button type="button" id="add-comp" class="btn ghost">Add blank comp</button>
+            <h2>Other listings</h2>
+            <button type="button" id="add-comp" class="btn ghost">Add a blank listing</button>
           </div>
           <div id="comp-list" class="list"></div>
         </div>
 
         <div class="g-card" style="margin-top: 1rem">
           <div class="row">
-            <h2>Sentiment notes</h2>
+            <h2>Notes</h2>
             <button type="button" id="add-note" class="btn ghost">Add note</button>
           </div>
           <div id="note-list" class="list"></div>
         </div>
       </section>
     </main>
-    <p class="g-foot">Private notebook · username and password only</p>
+    <p class="g-foot">Private · username and password</p>
     <script>
       import { boot } from '../../lib/garage/desk';
       boot();

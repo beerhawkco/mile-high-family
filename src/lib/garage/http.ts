@@ -20,6 +20,8 @@ export type GarageRuntime = {
   save: (store: GarageStore) => Promise<void>;
   putPhoto?: (id: string, encoded: string) => Promise<void>;
   getPhoto?: (id: string) => Promise<string | null>;
+  canSave?: boolean;
+  canPhotos?: boolean;
 };
 
 function json(data: unknown, status = 200, headers?: HeadersInit) {
@@ -53,7 +55,16 @@ export async function handleGarageRequest(request: Request, runtime: GarageRunti
 
   if (path === '/api/garage/session' && request.method === 'GET') {
     const session = await requireUser(request, runtime);
-    return json(session ? { ok: true, user: session.user } : { ok: false });
+    return json(
+      session
+        ? {
+            ok: true,
+            user: session.user,
+            canSave: runtime.canSave !== false,
+            canPhotos: runtime.canPhotos !== false,
+          }
+        : { ok: false, canSave: runtime.canSave !== false, canPhotos: runtime.canPhotos !== false },
+    );
   }
 
   if (path === '/api/garage/login' && request.method === 'POST') {
@@ -68,7 +79,16 @@ export async function handleGarageRequest(request: Request, runtime: GarageRunti
       return error('Username or password is wrong.', 401);
     }
     const token = await signSession(runtime.sessionSecret, runtime.adminUser);
-    return json({ ok: true, user: runtime.adminUser }, 200, { 'set-cookie': cookieHeader(token, secure) });
+    return json(
+      {
+        ok: true,
+        user: runtime.adminUser,
+        canSave: runtime.canSave !== false,
+        canPhotos: runtime.canPhotos !== false,
+      },
+      200,
+      { 'set-cookie': cookieHeader(token, secure) },
+    );
   }
 
   if (path === '/api/garage/logout' && request.method === 'POST') {
@@ -103,7 +123,12 @@ export async function handleGarageRequest(request: Request, runtime: GarageRunti
 
   if (path === '/api/garage/photo' && request.method === 'POST') {
     if (!(await requireUser(request, runtime))) return error('Sign in first.', 401);
-    if (!runtime.putPhoto) return error('Photo storage is not configured on this host.', 503);
+    if (!runtime.putPhoto) {
+      return error(
+        "Can't keep photos until this Worker has a KV store named GARAGE. In Cloudflare, open this Worker → Settings → Bindings → KV. Add a binding named GARAGE, then redeploy.",
+        503,
+      );
+    }
     let file: File | null = null;
     try {
       const form = await request.formData();
@@ -112,10 +137,10 @@ export async function handleGarageRequest(request: Request, runtime: GarageRunti
     } catch {
       return error('Send the photo as a file upload.', 400);
     }
-    if (!file || file.size === 0) return error('Choose a photo of the ad.', 400);
+    if (!file || file.size === 0) return error('Choose a photo of the listing.', 400);
     if (file.size > PHOTO_MAX_BYTES) return error('That photo is over 4 MB.', 400);
     const type = sniffType(file);
-    if (!type) return error('Use a JPEG, PNG, or WebP screenshot of the ad.', 400);
+    if (!type) return error('Use a JPEG, PNG, or WebP photo of the listing.', 400);
     const bytes = new Uint8Array(await file.arrayBuffer());
     const id = newId('pho');
     await runtime.putPhoto(id, encodePhoto(bytes, type));

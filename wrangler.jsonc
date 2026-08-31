@@ -15,6 +15,10 @@
   "triggers": {
     "crons": ["15 13 * * *"]
   },
+  // Persist garage desk saves in production:
+  // "kv_namespaces": [
+  //   { "binding": "GARAGE", "id": "<namespace id>" }
+  // ],
   "observability": {
     "enabled": false,
     "head_sampling_rate": 1,

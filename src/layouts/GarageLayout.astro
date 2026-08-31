@@ -50,7 +50,7 @@ const { title, view, slug = '', section = '' } = Astro.props;
       <section id="login-panel" class="g-card g-gate">
         <p class="g-meta-pill">Locked</p>
         <h2>Sign in</h2>
-        <p class="help">Username and password. This garage stays off the public site.</p>
+        <p class="help">Username and password. Stays off the public site.</p>
         <form id="login-form" class="g-form">
           <label class="hp">Leave blank<input id="website" name="website" tabindex="-1" autocomplete="off" /></label>
           <label>
@@ -69,7 +69,7 @@ const { title, view, slug = '', section = '' } = Astro.props;
         <div id="garage-app"></div>
       </section>
     </main>
-    <p class="g-foot">Private notebook · Denver 250-mile ring · not linked from the public site</p>
+    <p class="g-foot">Private · Denver 250 mi · not on the public site</p>
     <script>
       import { bootGarage } from '../lib/garage/app';
       bootGarage();

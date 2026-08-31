@@ -27,8 +27,8 @@ function applyFetched(
   const snapshot = snapshotFromMarket(next, vehicleId, date, {
     source: 'auto',
     needsReview: false,
-    headline: `Live ${next.market.radiusMiles}-mile ${next.market.center} pulse`,
-    brief: `Automated from ${incoming.length} live listings. Sold median uses confirmed and inferred sales. Review anything that looks like a pulled listing, not a sale.`,
+    headline: `Denver prices, ${next.market.radiusMiles} miles of ${next.market.center}`,
+    brief: `From ${incoming.length} listings for sale now. Sold prices include confirmed sales and listings that disappeared. Double-check anything that looks pulled, not sold.`,
   });
   return snapshot ? upsertSnapshot(next, snapshot) : next;
 }
@@ -63,11 +63,11 @@ export async function applyDailyPulse(
     next = carryForwardPulse(next, vehicle.id, date, {
       source: 'auto',
       needsReview: true,
-      headline: latest.date === date ? latest.headline : `Auto pulse for ${date} — still using ${latest.date} numbers`,
+      headline: latest.date === date ? latest.headline : `Using ${latest.date} numbers for ${date}`,
       brief:
         latest.date === date
           ? latest.brief
-          : `${latest.brief}\n\nLive Denver fetch missed. Numbers carried from ${latest.date}.`,
+          : `${latest.brief}\n\nCould not get new Denver prices. Numbers carried from ${latest.date}.`,
     });
     changed = true;
   }

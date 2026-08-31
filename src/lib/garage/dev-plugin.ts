@@ -95,7 +95,13 @@ export function garageDevApi(root = process.cwd()): Plugin {
           const store = await fileStore(root);
           const photos = await filePhotos(root);
           const request = await nodeRequestToFetch(req, req.headers.host || 'localhost');
-          const response = await handleGarageRequest(request, { ...localEnv(), ...store, ...photos });
+          const response = await handleGarageRequest(request, {
+            ...localEnv(),
+            ...store,
+            ...photos,
+            canSave: true,
+            canPhotos: true,
+          });
           await writeFetch(res, response);
         } catch (err) {
           res.statusCode = 500;

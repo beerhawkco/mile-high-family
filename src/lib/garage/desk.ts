@@ -1,4 +1,5 @@
 import { newId, snapshotId } from './ids.ts';
+import { compAdUrl, marketSearchUrl } from './links.ts';
 import { safePhotoSrc } from './photos.ts';
 import { todayStamp, parseStore } from './store.ts';
 import type { Comp, GarageStore, SentimentNote, Snapshot, Vehicle, VehicleId } from './types.ts';
@@ -226,7 +227,7 @@ function renderComps() {
       (comp) => `
       <article class="item" data-comp="${comp.id}">
         ${comp.photo && safePhotoSrc(comp.photo) ? `<img class="g-ad-shot" src="${safePhotoSrc(comp.photo)}" alt="" />` : ''}
-        <label>Ad photo<input data-comp-photo="${comp.id}" type="file" accept="image/jpeg,image/png,image/webp,image/*" /></label>
+        <label>Listing photo<input data-comp-photo="${comp.id}" type="file" accept="image/jpeg,image/png,image/webp,image/*" /></label>
         <input data-field="photo" type="hidden" value="${escapeAttr(comp.photo)}" />
         <label>Title<input data-field="title" value="${escapeAttr(comp.title)}" /></label>
         <div class="grid">
@@ -248,7 +249,8 @@ function renderComps() {
         <label>Location<input data-field="location" value="${escapeAttr(comp.location)}" /></label>
         <label>Source<input data-field="source" value="${escapeAttr(comp.source)}" /></label>
         <label>Condition<input data-field="condition" value="${escapeAttr(comp.condition)}" /></label>
-        <label>URL<input data-field="url" value="${escapeAttr(comp.url)}" /></label>
+        <label>Listing URL<input data-field="url" value="${escapeAttr(comp.url)}" /></label>
+        <p class="help"><a class="g-ad-link" href="${escapeAttr(compAdUrl(comp))}" target="_blank" rel="noopener noreferrer">Open listing</a></p>
         <label>Notes<textarea data-field="notes" rows="2">${escapeText(comp.notes)}</textarea></label>
         <button type="button" class="btn danger" data-delete-comp="${comp.id}">Remove</button>
       </article>`,
@@ -382,16 +384,17 @@ function stashEdits() {
   state.store = collectLists(applyVehicleEdits(state.store));
 }
 
-async function afterUnlock(user: string) {
+async function afterUnlock(user: string, persist?: { canSave?: boolean; canPhotos?: boolean }) {
   document.body.classList.remove('g-locked');
   setHidden('login-panel', true);
   setHidden('app-panel', false);
   $('signed-in').textContent = `Signed in as ${user}`;
-  setStatus('Loading the notebook…', 'busy');
+  setHidden('persist-warn', persist?.canSave !== false);
+  setStatus('Loading…', 'busy');
   state.store = parseStore(await api('/api/garage/store'));
   renderVehicleOptions();
   renderAll();
-  setStatus('Unlocked. Username and password only — no token.');
+  setStatus('Signed in.');
 }
 
 async function unlock(event: Event) {
@@ -405,9 +408,9 @@ async function unlock(event: Event) {
         username: input('username').value,
         password: input('password').value,
       }),
-    })) as { user?: string };
+    })) as { user?: string; canSave?: boolean; canPhotos?: boolean };
     input('password').value = '';
-    await afterUnlock(data.user || input('username').value);
+    await afterUnlock(data.user || input('username').value, data);
   } catch (err) {
     setStatus(err instanceof Error ? err.message : 'Sign-in failed.', 'err');
   }
@@ -444,7 +447,7 @@ async function save() {
 }
 
 async function pulse() {
-    setStatus('Fetching the Denver 250-mile market…', 'busy');
+  setStatus('Getting Denver prices…', 'busy');
   try {
     stashEdits();
     const data = (await api('/api/garage/pulse', { method: 'POST', body: JSON.stringify({}) })) as {
@@ -454,27 +457,28 @@ async function pulse() {
     state.store = parseStore(data.store ?? data);
     input('snap-date').value = todayStamp();
     renderAll();
-    setStatus((data.notes ?? []).join(' ') || 'Denver market updated. Review, then save.');
+    setStatus((data.notes ?? []).join(' ') || 'Got new prices. Look them over, then save.');
   } catch (err) {
-    setStatus(err instanceof Error ? err.message : 'Pulse failed.', 'err');
+    setStatus(err instanceof Error ? err.message : 'Could not get Denver prices.', 'err');
   }
 }
 
 function addComp() {
   if (!state.store || !state.vehicleId) return;
   stashEdits();
+  const year = state.store.vehicles.find((item) => item.id === state.vehicleId)?.year ?? new Date().getFullYear();
   state.store.comps.push({
     id: newId('cmp'),
     vehicleId: state.vehicleId,
     title: '',
-    year: state.store.vehicles.find((item) => item.id === state.vehicleId)?.year ?? new Date().getFullYear(),
+    year,
     price: 0,
     miles: null,
     hours: null,
     location: '',
     condition: '',
     source: '',
-    url: '',
+    url: marketSearchUrl(state.vehicleId, year),
     photo: '',
     listedOn: todayStamp(),
     daysListed: null,
@@ -531,10 +535,10 @@ async function trackAd() {
   if (!state.store || !state.vehicleId) return;
   const file = adFile().files?.[0];
   if (!file) {
-    setStatus('Add a photo of the ad first.', 'err');
+    setStatus('Add a photo of the listing first.', 'err');
     return;
   }
-  setStatus('Uploading the ad photo…', 'busy');
+  setStatus('Uploading the listing photo…', 'busy');
   try {
     stashEdits();
     const photo = await uploadAdPhoto(file);
@@ -549,8 +553,8 @@ async function trackAd() {
       hours: null,
       location: '',
       condition: '',
-      source: input('ad-source').value.trim() || 'Ad clip',
-      url: input('ad-url').value.trim(),
+      source: input('ad-source').value.trim() || 'Listing photo',
+      url: input('ad-url').value.trim() || marketSearchUrl(state.vehicleId, vehicle.year),
       photo,
       listedOn: todayStamp(),
       daysListed: null,
@@ -566,9 +570,9 @@ async function trackAd() {
     adFile().value = '';
     showAdPreview(null);
     renderComps();
-    if (await save()) setStatus('Ad is on the tape. Photo saved with this unit.');
+    if (await save()) setStatus('Listing saved with the photo.');
   } catch (err) {
-    setStatus(err instanceof Error ? err.message : 'Could not track that ad.', 'err');
+    setStatus(err instanceof Error ? err.message : 'Could not add that listing.', 'err');
   }
 }
 
@@ -590,8 +594,13 @@ function addNote() {
 export function boot() {
   void (async () => {
     try {
-      const session = (await api('/api/garage/session')) as { ok?: boolean; user?: string };
-      if (session.ok && session.user) await afterUnlock(session.user);
+      const session = (await api('/api/garage/session')) as {
+        ok?: boolean;
+        user?: string;
+        canSave?: boolean;
+        canPhotos?: boolean;
+      };
+      if (session.ok && session.user) await afterUnlock(session.user, session);
     } catch {
       setStatus('Locked.');
     }
@@ -640,7 +649,7 @@ export function boot() {
     const id = picker.getAttribute('data-comp-photo');
     const file = picker.files[0];
     void (async () => {
-      setStatus('Uploading the ad photo…', 'busy');
+      setStatus('Uploading the listing photo…', 'busy');
       try {
         stashEdits();
         const photo = await uploadAdPhoto(file);
@@ -648,7 +657,7 @@ export function boot() {
         if (hidden) hidden.value = photo;
         stashEdits();
         renderComps();
-        setStatus('Photo attached. Save to keep it on this ad.');
+        setStatus('Photo attached. Save to keep it on this listing.');
       } catch (err) {
         setStatus(err instanceof Error ? err.message : 'Photo upload failed.', 'err');
       }
