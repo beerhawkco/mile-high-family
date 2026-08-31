@@ -7,6 +7,18 @@ export function dollars(value: number | null | undefined) {
   }).format(value);
 }
 
+export function compactDollars(value: number | null | undefined) {
+  if (value == null || Number.isNaN(value)) return '—';
+  const abs = Math.abs(value);
+  const sign = value < 0 ? '−' : '';
+  if (abs >= 1000) {
+    const k = abs / 1000;
+    const text = abs >= 10_000 || Number.isInteger(k) ? k.toFixed(0) : k.toFixed(1);
+    return `${sign}$${text}k`;
+  }
+  return `${sign}$${Math.round(abs)}`;
+}
+
 export function signedDollars(value: number | null | undefined) {
   if (value == null || Number.isNaN(value)) return '—';
   const formatted = dollars(Math.abs(value));

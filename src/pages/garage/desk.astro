@@ -17,7 +17,7 @@ import '../../styles/garage.css';
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Fraunces:opsz,wght@144,600;144,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <script is:inline>
@@ -30,18 +30,20 @@ import '../../styles/garage.css';
       })();
     </script>
   </head>
-  <body class="g-page g-locked font-body text-ink desk" data-garage-view="desk">
+  <body class="g-page g-locked desk" data-garage-view="desk">
     <GarageChrome
-      kicker="Garage desk"
-      heading="Today’s pulse"
-      lede="Edit the units, comps, and daily Denver market. Username and password only — no GitHub token."
+      line1="Garage"
+      line2="Desk"
+      accent="Market pulse"
+      meta="80202 · 250 mi"
+      lede="Edit units, comps, and the Denver tape. Username and password only."
     />
     <main id="garage-main" class="g-wrap">
-      <section id="login-panel" class="g-card g-gate tilt-l">
-        <p class="g-badge">Locked</p>
-        <h2 class="mt-2 font-display text-3xl font-extrabold">Sign in</h2>
-        <p class="help mt-2">This is a normal admin login. You will never be asked for a personal access token here.</p>
-        <form id="login-form" class="g-form mt-3">
+      <section id="login-panel" class="g-card g-gate">
+        <p class="g-meta-pill">Locked</p>
+        <h2>Sign in</h2>
+        <p class="help">Normal admin login. You will never be asked for a personal access token here.</p>
+        <form id="login-form" class="g-form">
           <label class="hp">Leave blank<input id="website" name="website" tabindex="-1" autocomplete="off" /></label>
           <label>Username<input id="username" type="text" autocomplete="username" required /></label>
           <label>Password<input id="password" type="password" autocomplete="current-password" required /></label>
@@ -52,10 +54,10 @@ import '../../styles/garage.css';
       <section id="app-panel" class="hidden">
         <p id="signed-in" class="help"></p>
 
-        <div class="g-card tilt-l" style="margin-top: 1rem">
+        <div class="g-card" style="margin-top: 1rem">
           <div class="row">
-            <h2 class="font-display text-2xl font-extrabold">Pulse controls</h2>
-            <p class="help">Fetch, then review, then save</p>
+            <h2>Pulse controls</h2>
+            <p class="help">Fetch, review, then save</p>
           </div>
           <label>Vehicle
             <select id="vehicle"></select>
@@ -66,8 +68,8 @@ import '../../styles/garage.css';
           </div>
         </div>
 
-        <div class="g-card tilt-r" style="margin-top: 1rem">
-          <h2 class="font-display text-2xl font-extrabold">This unit</h2>
+        <div class="g-card" style="margin-top: 1rem">
+          <h2>This unit</h2>
           <label>Intent
             <select id="vehicle-intent">
               <option value="sell">Selling ours</option>
@@ -97,8 +99,8 @@ import '../../styles/garage.css';
           <label>Private / desk notes<textarea id="vehicle-notes" rows="3"></textarea></label>
         </div>
 
-        <div class="g-card tilt-l" style="margin-top: 1rem">
-          <h2 class="font-display text-2xl font-extrabold">Market snapshot</h2>
+        <div class="g-card" style="margin-top: 1rem">
+          <h2>Market snapshot</h2>
           <div class="grid">
             <label>Date<input id="snap-date" type="date" /></label>
             <label>Median ask<input id="snap-median" type="number" step="100" /></label>
@@ -131,17 +133,17 @@ import '../../styles/garage.css';
           <label class="check"><input id="snap-review" type="checkbox" /> Needs review</label>
         </div>
 
-        <div class="g-card tilt-r" style="margin-top: 1rem">
+        <div class="g-card" style="margin-top: 1rem">
           <div class="row">
-            <h2 class="font-display text-2xl font-extrabold">Comps</h2>
+            <h2>Comps</h2>
             <button type="button" id="add-comp" class="btn ghost">Add comp</button>
           </div>
           <div id="comp-list" class="list"></div>
         </div>
 
-        <div class="g-card tilt-l" style="margin-top: 1rem">
+        <div class="g-card" style="margin-top: 1rem">
           <div class="row">
-            <h2 class="font-display text-2xl font-extrabold">Sentiment notes</h2>
+            <h2>Sentiment notes</h2>
             <button type="button" id="add-note" class="btn ghost">Add note</button>
           </div>
           <div id="note-list" class="list"></div>

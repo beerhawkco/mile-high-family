@@ -26,7 +26,7 @@ const { title, view, slug = '', section = '' } = Astro.props;
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Fraunces:opsz,wght@144,600;144,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <script is:inline>
@@ -40,22 +40,18 @@ const { title, view, slug = '', section = '' } = Astro.props;
     </script>
   </head>
   <body
-    class="g-page g-locked font-body text-ink"
+    class="g-page g-locked"
     data-garage-view={view}
     data-garage-slug={slug}
     data-garage-section={section}
   >
-    <GarageChrome
-      kicker="Private garage"
-      heading="Market pulse"
-      lede="Sold prints, current asks, and days listed before sale — 250 miles of Denver."
-    />
+    <GarageChrome />
     <main id="garage-main" class="g-wrap">
-      <section id="login-panel" class="g-card g-gate tilt-l">
-        <p class="g-badge">Locked</p>
-        <h2 class="mt-2 font-display text-3xl font-extrabold">Sign in</h2>
-        <p class="help mt-2">Username and password. This whole garage stays off the public site.</p>
-        <form id="login-form" class="g-form mt-3">
+      <section id="login-panel" class="g-card g-gate">
+        <p class="g-meta-pill">Locked</p>
+        <h2>Sign in</h2>
+        <p class="help">Username and password. This garage stays off the public site.</p>
+        <form id="login-form" class="g-form">
           <label class="hp">Leave blank<input id="website" name="website" tabindex="-1" autocomplete="off" /></label>
           <label>
             Username
@@ -65,7 +61,7 @@ const { title, view, slug = '', section = '' } = Astro.props;
             Password
             <input id="password" type="password" autocomplete="current-password" required />
           </label>
-          <button type="submit" class="g-btn mt-2">Sign in</button>
+          <button type="submit" class="g-btn">Sign in</button>
         </form>
       </section>
 
@@ -73,7 +69,7 @@ const { title, view, slug = '', section = '' } = Astro.props;
         <div id="garage-app"></div>
       </section>
     </main>
-    <p class="g-foot">Private notebook · not linked from the public site · Denver 250-mile ring</p>
+    <p class="g-foot">Private notebook · Denver 250-mile ring · not linked from the public site</p>
     <script>
       import { bootGarage } from '../lib/garage/app';
       bootGarage();
