@@ -143,6 +143,25 @@ function applyVehicleEdits(store: GarageStore) {
   };
 }
 
+function rememberedVehicle(): VehicleId | null {
+  try {
+    const value = sessionStorage.getItem('mhf-garage-vehicle');
+    if (value === 'thor-majestic-28a' || value === 'tesla-model-y-lr') return value;
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+function rememberVehicle(id: VehicleId | null) {
+  state.vehicleId = id;
+  try {
+    if (id) sessionStorage.setItem('mhf-garage-vehicle', id);
+  } catch {
+    /* ignore */
+  }
+}
+
 function renderVehicleOptions() {
   const select = input('vehicle');
   const store = state.store;
@@ -150,7 +169,7 @@ function renderVehicleOptions() {
   select.innerHTML = store.vehicles
     .map((vehicle) => `<option value="${vehicle.id}">${vehicle.name}</option>`)
     .join('');
-  if (!state.vehicleId) state.vehicleId = store.vehicles[0]?.id ?? null;
+  if (!state.vehicleId) rememberVehicle(rememberedVehicle() ?? store.vehicles[0]?.id ?? null);
   if (state.vehicleId) select.value = state.vehicleId;
 }
 
@@ -354,7 +373,12 @@ async function unlock(event: Event) {
 async function logout() {
   await api('/api/garage/logout', { method: 'POST' });
   state.store = null;
-  state.vehicleId = null;
+  rememberVehicle(null);
+  try {
+    sessionStorage.removeItem('mhf-garage-vehicle');
+  } catch {
+    /* ignore */
+  }
   setHidden('app-panel', true);
   setHidden('login-panel', false);
   setStatus('Signed out.');
@@ -441,7 +465,7 @@ export function boot() {
   $('add-note').addEventListener('click', addNote);
   input('vehicle').addEventListener('change', () => {
     stashEdits();
-    state.vehicleId = input('vehicle').value as VehicleId;
+    rememberVehicle(input('vehicle').value as VehicleId);
     renderAll();
   });
   input('snap-date').addEventListener('change', () => {
