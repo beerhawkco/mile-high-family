@@ -15,8 +15,10 @@
   "triggers": {
     "crons": ["15 13 * * *"]
   },
-  // After you create a KV namespace in Cloudflare, put its id here so deploys keep the binding:
-  // "kv_namespaces": [{ "binding": "GARAGE", "id": "<namespace id>" }],
+  // Persist garage desk saves in production:
+  // "kv_namespaces": [
+  //   { "binding": "GARAGE", "id": "<namespace id>" }
+  // ],
   "observability": {
     "enabled": false,
     "head_sampling_rate": 1,

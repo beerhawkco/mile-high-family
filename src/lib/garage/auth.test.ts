@@ -63,6 +63,9 @@ describe('garage http', () => {
       runtime,
     );
     assert.equal(ok.status, 200);
+    const loggedIn = (await ok.json()) as { canSave?: boolean; canPhotos?: boolean };
+    assert.equal(loggedIn.canSave, true);
+    assert.equal(loggedIn.canPhotos, true);
     const cookie = ok.headers.get('set-cookie') ?? '';
     assert.match(cookie, /mhf-garage=/);
     assert.match(cookie, /HttpOnly/);
@@ -74,35 +77,6 @@ describe('garage http', () => {
     );
     assert.equal(store.status, 200);
     assert.equal(parseStore(await store.json()).vehicles.length, 2);
-  });
-
-  it('tells the desk when saves cannot persist', async () => {
-    const seed = createSeedStore();
-    const runtime = {
-      adminUser: 'ada',
-      adminPassword: 'correct-horse',
-      sessionSecret: 'session-secret-16',
-      load: async () => seed,
-      save: async () => undefined,
-      canSave: false,
-      canPhotos: false,
-    };
-    const login = await handleGarageRequest(
-      new Request('http://localhost/api/garage/login', {
-        method: 'POST',
-        body: JSON.stringify({ username: 'ada', password: 'correct-horse' }),
-      }),
-      runtime,
-    );
-    const cookie = login.headers.get('set-cookie') ?? '';
-    const session = await handleGarageRequest(
-      new Request('http://localhost/api/garage/session', { headers: { cookie } }),
-      runtime,
-    );
-    const body = (await session.json()) as { canSave?: boolean; canPhotos?: boolean };
-    assert.equal(body.canSave, false);
-    assert.equal(body.canPhotos, false);
-    assert.doesNotMatch(JSON.stringify(body), /github_pat_|GARAGE_GITHUB_TOKEN/i);
   });
 
   it('does not expose a GitHub token prompt on the public API', async () => {
@@ -117,7 +91,58 @@ describe('garage http', () => {
     const res = await handleGarageRequest(new Request('http://localhost/api/garage/public'), runtime);
     assert.equal(res.status, 404);
     const text = await res.text();
-    assert.doesNotMatch(text, /github_pat_|ghp_/);
+    assert.doesNotMatch(text, /github_pat_|ghp_|GARAGE_GITHUB_TOKEN|personal access token/i);
+  });
+
+  it('session reports canSave false when set, and save errors stay KV-only', async () => {
+    const seed = createSeedStore();
+    const runtime = {
+      adminUser: 'ada',
+      adminPassword: 'correct-horse',
+      sessionSecret: 'session-secret-16',
+      canSave: false,
+      canPhotos: false,
+      load: async () => seed,
+      save: async () => {
+        throw new Error(
+          "Can't save until this Worker has a KV store named GARAGE. In Cloudflare, open this Worker → Settings → Bindings → KV. Add a binding named GARAGE, then redeploy.",
+        );
+      },
+    };
+
+    const login = await handleGarageRequest(
+      new Request('http://localhost/api/garage/login', {
+        method: 'POST',
+        body: JSON.stringify({ username: 'ada', password: 'correct-horse' }),
+      }),
+      runtime,
+    );
+    assert.equal(login.status, 200);
+    const loggedIn = (await login.json()) as { canSave?: boolean; canPhotos?: boolean };
+    assert.equal(loggedIn.canSave, false);
+    assert.equal(loggedIn.canPhotos, false);
+    const cookie = login.headers.get('set-cookie') ?? '';
+
+    const session = await handleGarageRequest(
+      new Request('http://localhost/api/garage/session', { headers: { cookie } }),
+      runtime,
+    );
+    const sessionBody = (await session.json()) as { ok?: boolean; canSave?: boolean; canPhotos?: boolean };
+    assert.equal(sessionBody.ok, true);
+    assert.equal(sessionBody.canSave, false);
+    assert.equal(sessionBody.canPhotos, false);
+
+    const saved = await handleGarageRequest(
+      new Request('http://localhost/api/garage/store', {
+        method: 'PUT',
+        headers: { cookie, 'content-type': 'application/json' },
+        body: JSON.stringify(seed),
+      }),
+      runtime,
+    );
+    const saveText = await saved.text();
+    assert.doesNotMatch(saveText, /github_pat_|ghp_|GARAGE_GITHUB_TOKEN|personal access token/i);
+    assert.match(saveText, /KV store named GARAGE/);
   });
 
   it('stores an ad photo only after sign-in', async () => {

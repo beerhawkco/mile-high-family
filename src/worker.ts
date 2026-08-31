@@ -49,7 +49,7 @@ async function saveStore(env: Env, store: GarageStore) {
     return;
   }
   throw new Error(
-    'Can’t save yet. In Cloudflare, open this Worker → Settings → Bindings → Add → KV namespace. Name the binding GARAGE, then deploy again.',
+    "Can't save until this Worker has a KV store named GARAGE. In Cloudflare, open this Worker → Settings → Bindings → KV. Add a binding named GARAGE, then redeploy.",
   );
 }
 
@@ -96,7 +96,11 @@ function runtime(env: Env) {
     canSave: Boolean(env.GARAGE || env.GARAGE_GITHUB_TOKEN),
     canPhotos: Boolean(env.GARAGE),
     putPhoto: async (id: string, encoded: string) => {
-      if (!env.GARAGE) throw new Error('Listing photos need a KV store named GARAGE on this Worker.');
+      if (!env.GARAGE) {
+        throw new Error(
+          "Can't keep photos until this Worker has a KV store named GARAGE. In Cloudflare, open this Worker → Settings → Bindings → KV. Add a binding named GARAGE, then redeploy.",
+        );
+      }
       await env.GARAGE.put(PHOTO_KEY(id), encoded);
     },
     getPhoto: async (id: string) => {

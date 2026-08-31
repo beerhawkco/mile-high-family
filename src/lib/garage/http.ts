@@ -63,7 +63,7 @@ export async function handleGarageRequest(request: Request, runtime: GarageRunti
             canSave: runtime.canSave !== false,
             canPhotos: runtime.canPhotos !== false,
           }
-        : { ok: false },
+        : { ok: false, canSave: runtime.canSave !== false, canPhotos: runtime.canPhotos !== false },
     );
   }
 
@@ -123,7 +123,12 @@ export async function handleGarageRequest(request: Request, runtime: GarageRunti
 
   if (path === '/api/garage/photo' && request.method === 'POST') {
     if (!(await requireUser(request, runtime))) return error('Sign in first.', 401);
-    if (!runtime.putPhoto) return error('Listing photos need a KV store named GARAGE on this Worker.', 503);
+    if (!runtime.putPhoto) {
+      return error(
+        "Can't keep photos until this Worker has a KV store named GARAGE. In Cloudflare, open this Worker → Settings → Bindings → KV. Add a binding named GARAGE, then redeploy.",
+        503,
+      );
+    }
     let file: File | null = null;
     try {
       const form = await request.formData();
@@ -132,10 +137,10 @@ export async function handleGarageRequest(request: Request, runtime: GarageRunti
     } catch {
       return error('Send the photo as a file upload.', 400);
     }
-    if (!file || file.size === 0) return error('Choose a photo of the ad.', 400);
+    if (!file || file.size === 0) return error('Choose a photo of the listing.', 400);
     if (file.size > PHOTO_MAX_BYTES) return error('That photo is over 4 MB.', 400);
     const type = sniffType(file);
-    if (!type) return error('Use a JPEG, PNG, or WebP screenshot of the ad.', 400);
+    if (!type) return error('Use a JPEG, PNG, or WebP photo of the listing.', 400);
     const bytes = new Uint8Array(await file.arrayBuffer());
     const id = newId('pho');
     await runtime.putPhoto(id, encodePhoto(bytes, type));

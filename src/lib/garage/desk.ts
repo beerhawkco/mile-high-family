@@ -227,7 +227,7 @@ function renderComps() {
       (comp) => `
       <article class="item" data-comp="${comp.id}">
         ${comp.photo && safePhotoSrc(comp.photo) ? `<img class="g-ad-shot" src="${safePhotoSrc(comp.photo)}" alt="" />` : ''}
-        <label>Ad photo<input data-comp-photo="${comp.id}" type="file" accept="image/jpeg,image/png,image/webp,image/*" /></label>
+        <label>Listing photo<input data-comp-photo="${comp.id}" type="file" accept="image/jpeg,image/png,image/webp,image/*" /></label>
         <input data-field="photo" type="hidden" value="${escapeAttr(comp.photo)}" />
         <label>Title<input data-field="title" value="${escapeAttr(comp.title)}" /></label>
         <div class="grid">
@@ -249,8 +249,8 @@ function renderComps() {
         <label>Location<input data-field="location" value="${escapeAttr(comp.location)}" /></label>
         <label>Source<input data-field="source" value="${escapeAttr(comp.source)}" /></label>
         <label>Condition<input data-field="condition" value="${escapeAttr(comp.condition)}" /></label>
-        <label>Ad URL<input data-field="url" value="${escapeAttr(comp.url)}" /></label>
-        <p class="help"><a class="g-ad-link" href="${escapeAttr(compAdUrl(comp))}" target="_blank" rel="noopener noreferrer">Open the ad</a></p>
+        <label>Listing URL<input data-field="url" value="${escapeAttr(comp.url)}" /></label>
+        <p class="help"><a class="g-ad-link" href="${escapeAttr(compAdUrl(comp))}" target="_blank" rel="noopener noreferrer">Open listing</a></p>
         <label>Notes<textarea data-field="notes" rows="2">${escapeText(comp.notes)}</textarea></label>
         <button type="button" class="btn danger" data-delete-comp="${comp.id}">Remove</button>
       </article>`,
@@ -394,14 +394,7 @@ async function afterUnlock(user: string, persist?: { canSave?: boolean; canPhoto
   state.store = parseStore(await api('/api/garage/store'));
   renderVehicleOptions();
   renderAll();
-  if (persist?.canSave === false) {
-    setStatus(
-      'Can’t save until this Worker has a KV store named GARAGE. Add the binding in Cloudflare, then redeploy.',
-      'err',
-    );
-  } else {
-    setStatus(`Signed in as ${user}.`);
-  }
+  setStatus('Signed in.');
 }
 
 async function unlock(event: Event) {
@@ -454,7 +447,7 @@ async function save() {
 }
 
 async function pulse() {
-    setStatus('Getting Denver prices…', 'busy');
+  setStatus('Getting Denver prices…', 'busy');
   try {
     stashEdits();
     const data = (await api('/api/garage/pulse', { method: 'POST', body: JSON.stringify({}) })) as {
@@ -542,10 +535,10 @@ async function trackAd() {
   if (!state.store || !state.vehicleId) return;
   const file = adFile().files?.[0];
   if (!file) {
-    setStatus('Add a photo of the ad first.', 'err');
+    setStatus('Add a photo of the listing first.', 'err');
     return;
   }
-  setStatus('Uploading the ad photo…', 'busy');
+  setStatus('Uploading the listing photo…', 'busy');
   try {
     stashEdits();
     const photo = await uploadAdPhoto(file);
@@ -560,7 +553,7 @@ async function trackAd() {
       hours: null,
       location: '',
       condition: '',
-      source: input('ad-source').value.trim() || 'Ad clip',
+      source: input('ad-source').value.trim() || 'Listing photo',
       url: input('ad-url').value.trim() || marketSearchUrl(state.vehicleId, vehicle.year),
       photo,
       listedOn: todayStamp(),
@@ -656,7 +649,7 @@ export function boot() {
     const id = picker.getAttribute('data-comp-photo');
     const file = picker.files[0];
     void (async () => {
-      setStatus('Uploading the ad photo…', 'busy');
+      setStatus('Uploading the listing photo…', 'busy');
       try {
         stashEdits();
         const photo = await uploadAdPhoto(file);
