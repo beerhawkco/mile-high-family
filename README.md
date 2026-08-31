@@ -2,7 +2,7 @@
 
 Public Colorado Front Range site for [milehighfamily.com](https://milehighfamily.com).
 
-Camping, rockhounding, gymnastics, aviation, and gaming — plus adventures, weekend plans, and short lessons.
+Camping, rockhounding, gymnastics, aviation, and gaming — plus adventures, weekend plans, short lessons, and a garage that tracks two vehicles.
 
 ## Local
 
@@ -30,6 +30,22 @@ MDX collections live in `src/content/`:
 Frontmatter: `title`, `summary`, `date`, `tags`, `ages`, `hero`, `heroAlt`, optional `heroCredit`, `featured`, `weekend`.
 
 Launch stories are starter editorial. Place photos are free Wikimedia Commons files of the actual spots. Dark mode toggle lives in the header.
+
+## Garage
+
+Private selling notebook at `/garage` (not in the public nav, blocked from search). One admin login:
+
+- Username: `admin`
+- Password: `front-range-garage`
+
+Summary shows both units. **Cars** and **RVs** are separate sections. Desk is `/garage/desk`.
+
+The daily job (`garage-daily.yml` and the Worker cron) pulls live asking listings inside **250 miles of Denver** (Tesla used inventory + Denver Craigslist RSS for the Majestic), infers sold prints when a listing disappears, and records days listed before sale. If a fetch fails, yesterday’s numbers carry forward.
+
+```sh
+npm run garage:seed
+npm run garage:pulse
+```
 
 ## Campfire
 

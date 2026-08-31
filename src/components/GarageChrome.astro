@@ -1,0 +1,69 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+
+interface Props {
+  line1?: string;
+  line2?: string;
+  accent?: string;
+  meta?: string;
+  lede?: string;
+  showNav?: boolean;
+}
+
+const {
+  line1 = 'Denver',
+  line2 = '250mi',
+  accent = 'Price tracker',
+  meta = '80202 · 250 mi',
+  lede = 'Sold prints, live asks, and days listed before sale.',
+  showNav = true,
+} = Astro.props;
+---
+
+<a class="g-skip" href="#garage-main">Skip to garage</a>
+<header class="g-chrome">
+  <div class="g-chrome-inner">
+    <div class="g-top">
+      <a class="g-wordmark" href="/garage/">
+        <strong>Garage</strong>
+        <em>Price tracker</em>
+      </a>
+      <div class="g-tools">
+        <ThemeToggle />
+      </div>
+    </div>
+    {
+      showNav && (
+        <nav class="g-nav" aria-label="Garage">
+          <a data-nav="home" href="/garage/">
+            Summary
+          </a>
+          <a data-nav="cars" href="/garage/cars/">
+            Cars
+          </a>
+          <a data-nav="rvs" href="/garage/rvs/">
+            RVs
+          </a>
+          <a data-nav="desk" href="/garage/desk/">
+            Desk
+          </a>
+          <button type="button" id="logout-btn">Sign out</button>
+        </nav>
+      )
+    }
+    <div class="g-mast">
+      <div>
+        <p class="g-stack">
+          <span id="g-line-1">{line1}</span>
+          <span id="g-line-2">{line2}</span>
+          <span class="accent" id="g-line-3">{accent}</span>
+        </p>
+        <p class="g-meta-pill" id="g-meta">{meta}</p>
+      </div>
+      <div>
+        <p class="g-lede" id="g-lede">{lede}</p>
+        <p class="g-status" id="status" data-kind="ok">Locked.</p>
+      </div>
+    </div>
+  </div>
+</header>

@@ -2,3 +2,5 @@ node_modules/
 dist/
 .astro/
 .wrangler/
+.dev.vars
+src/content/garage/photos/

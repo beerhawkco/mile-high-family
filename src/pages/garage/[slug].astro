@@ -1,0 +1,25 @@
+---
+const dest =
+  Astro.params.slug === 'thor-majestic-28a'
+    ? '/garage/rvs/thor-majestic-28a/'
+    : Astro.params.slug === 'tesla-model-y-lr'
+      ? '/garage/cars/tesla-model-y-lr/'
+      : '/garage/';
+
+export function getStaticPaths() {
+  return [{ params: { slug: 'thor-majestic-28a' } }, { params: { slug: 'tesla-model-y-lr' } }];
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content={`0;url=${dest}`} />
+    <title>Moved</title>
+  </head>
+  <body>
+    <a href={dest}>Continue to the private garage</a>
+  </body>
+</html>

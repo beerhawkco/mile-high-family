@@ -1,0 +1,78 @@
+---
+import GarageChrome from '../components/GarageChrome.astro';
+import '../styles/global.css';
+import '../styles/garage.css';
+
+interface Props {
+  title: string;
+  view: 'home' | 'cars' | 'rvs' | 'vehicle';
+  slug?: string;
+  section?: 'cars' | 'rvs';
+}
+
+const { title, view, slug = '', section = '' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="color-scheme" content="light dark" />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Fraunces:opsz,wght@144,600;144,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      (function () {
+        try {
+          var saved = localStorage.getItem('mhf-theme');
+          var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body
+    class="g-page g-locked"
+    data-garage-view={view}
+    data-garage-slug={slug}
+    data-garage-section={section}
+  >
+    <GarageChrome />
+    <main id="garage-main" class="g-wrap">
+      <section id="login-panel" class="g-card g-gate">
+        <p class="g-meta-pill">Locked</p>
+        <h2>Sign in</h2>
+        <p class="help">Username and password. This garage stays off the public site.</p>
+        <form id="login-form" class="g-form">
+          <label class="hp">Leave blank<input id="website" name="website" tabindex="-1" autocomplete="off" /></label>
+          <label>
+            Username
+            <input id="username" type="text" autocomplete="username" required />
+          </label>
+          <label>
+            Password
+            <input id="password" type="password" autocomplete="current-password" required />
+          </label>
+          <button type="submit" class="g-btn">Sign in</button>
+        </form>
+      </section>
+
+      <section id="app-panel" class="hidden">
+        <div id="garage-app"></div>
+      </section>
+    </main>
+    <p class="g-foot">Private notebook · Denver 250-mile ring · not linked from the public site</p>
+    <script>
+      import { bootGarage } from '../lib/garage/app';
+      bootGarage();
+    </script>
+  </body>
+</html>

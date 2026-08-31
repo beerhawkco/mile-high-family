@@ -9,7 +9,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "test": "node --experimental-strip-types --test src/lib/cms/*.test.ts",
+    "test": "node --experimental-strip-types --test src/lib/cms/*.test.ts src/lib/garage/*.test.ts",
+    "garage:seed": "node --experimental-strip-types scripts/garage-seed.ts",
+    "garage:pulse": "node --experimental-strip-types scripts/garage-daily.ts",
     "astro": "astro"
   },
   "dependencies": {
