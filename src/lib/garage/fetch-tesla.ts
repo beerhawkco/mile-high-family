@@ -1,3 +1,4 @@
+import { listingAdUrl } from './links.ts';
 import { DENVER_MARKET, type IncomingListing } from './market.ts';
 
 type TeslaResult = {
@@ -64,9 +65,9 @@ export async function fetchTeslaListings(_date = new Date().toISOString().slice(
         miles: typeof car.Odometer === 'number' ? car.Odometer : null,
         hours: null,
         location: city || 'Denver area',
-        url: car.VIN ? `https://www.tesla.com/used/${car.VIN}` : 'https://www.tesla.com/inventory/used/my',
+        url: car.VIN ? `https://www.tesla.com/used/${car.VIN}` : '',
         source: 'Tesla Used',
       };
     })
-    .filter((item) => item.price > 0);
+    .filter((item) => item.price > 0 && listingAdUrl(item.url));
 }

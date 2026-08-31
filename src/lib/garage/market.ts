@@ -1,4 +1,5 @@
 import { snapshotId } from './ids.ts';
+import { listingAdUrl } from './links.ts';
 import type { Comp, GarageStore, MarketListing, Snapshot, Trend, VehicleId } from './types.ts';
 
 function addDays(isoDate: string, days: number) {
@@ -198,6 +199,49 @@ export function upsertComps(store: GarageStore, incoming: Comp[]) {
     else next.push(comp);
   }
   return next;
+}
+
+function yearFromTitle(title: string, fallback: number) {
+  const match = title.match(/\b(20\d{2})\b/);
+  return match ? Number(match[1]) : fallback;
+}
+
+const LIVE_SOURCES = new Set(['Tesla Used', 'Craigslist Denver']);
+
+export function compsFromActiveListings(store: GarageStore, vehicleId: VehicleId): Comp[] {
+  const fallbackYear = store.vehicles.find((item) => item.id === vehicleId)?.year ?? new Date().getFullYear();
+  return store.listings
+    .filter((item) => item.vehicleId === vehicleId && item.status === 'active' && listingAdUrl(item.url))
+    .map((item) => ({
+      id: `cmp_${item.sourceId}`.replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 48),
+      vehicleId,
+      title: item.title,
+      year: yearFromTitle(item.title, fallbackYear),
+      price: item.price,
+      soldPrice: null,
+      miles: item.miles,
+      hours: item.hours,
+      location: item.location,
+      condition: '',
+      source: item.source,
+      url: listingAdUrl(item.url),
+      photo: '',
+      listedOn: item.firstSeen,
+      daysListed: null,
+      status: 'active',
+      notes: '',
+    }));
+}
+
+export function replaceLiveComps(store: GarageStore, vehicleId: VehicleId, live: Comp[], sales: Comp[]) {
+  const kept = store.comps.filter((comp) => {
+    if (comp.vehicleId !== vehicleId) return true;
+    if (comp.status !== 'active') return true;
+    if (LIVE_SOURCES.has(comp.source)) return false;
+    return true;
+  });
+  const extraSales = sales.filter((comp) => listingAdUrl(comp.url) || comp.photo);
+  return [...kept, ...live, ...extraSales];
 }
 
 export function recentWindow(date: string, days = 90) {

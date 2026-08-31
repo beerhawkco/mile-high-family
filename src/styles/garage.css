@@ -716,10 +716,15 @@ body[data-garage-view='desk'] .g-nav a[data-nav='desk'] {
   text-decoration-color: color-mix(in srgb, var(--terra) 70%, transparent);
 }
 
-.g-table .g-ad-link {
+.g-table .g-ad-link,
+.g-table .g-listing-plain {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.g-listing-plain {
+  font-weight: 600;
 }
 
 .g-table .g-ad-link .g-thumb {

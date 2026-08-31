@@ -1,3 +1,4 @@
+import { listingAdUrl } from './links.ts';
 import type { IncomingListing } from './market.ts';
 
 const FEEDS = [
@@ -27,7 +28,7 @@ function parseRss(xml: string): IncomingListing[] {
     if (!hay.includes('majestic') && !hay.includes('28a') && !hay.includes('thor')) continue;
     const priceMatch = `${title} ${desc}`.match(/\$[\s]*([0-9]{2,3}(?:,[0-9]{3})+)/);
     const price = priceMatch ? Number(priceMatch[1].replace(/,/g, '')) : 0;
-    if (!link || !title) continue;
+    if (!link || !title || !listingAdUrl(link)) continue;
     out.push({
       sourceId: link,
       title,
@@ -45,18 +46,24 @@ function parseRss(xml: string): IncomingListing[] {
 export async function fetchRvListings(): Promise<IncomingListing[]> {
   const seen = new Set<string>();
   const out: IncomingListing[] = [];
+  let lastError = '';
   for (const feed of FEEDS) {
     const res = await fetch(feed, {
       headers: { 'user-agent': 'MileHighFamilyGarage/1.0 (daily Denver RV pulse)' },
       signal: AbortSignal.timeout(20_000),
     });
-    if (!res.ok) continue;
+    if (!res.ok) {
+      lastError = `Craigslist RSS returned ${res.status}.`;
+      continue;
+    }
     for (const listing of parseRss(await res.text())) {
       if (seen.has(listing.sourceId)) continue;
       seen.add(listing.sourceId);
       out.push(listing);
     }
   }
-  if (out.length === 0) throw new Error('No Denver Craigslist Majestic/28A listings matched.');
+  if (out.length === 0) {
+    throw new Error(lastError || 'No Denver Craigslist Majestic/28A listings matched.');
+  }
   return out;
 }

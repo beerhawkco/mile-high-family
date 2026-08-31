@@ -1,5 +1,5 @@
 import { newId, snapshotId } from './ids.ts';
-import { compAdUrl, marketSearchUrl } from './links.ts';
+import { compAdUrl, listingAdUrl } from './links.ts';
 import { safePhotoSrc } from './photos.ts';
 import { todayStamp, parseStore } from './store.ts';
 import type { Comp, GarageStore, SentimentNote, Snapshot, Vehicle, VehicleId } from './types.ts';
@@ -249,8 +249,12 @@ function renderComps() {
         <label>Location<input data-field="location" value="${escapeAttr(comp.location)}" /></label>
         <label>Source<input data-field="source" value="${escapeAttr(comp.source)}" /></label>
         <label>Condition<input data-field="condition" value="${escapeAttr(comp.condition)}" /></label>
-        <label>Listing URL<input data-field="url" value="${escapeAttr(comp.url)}" /></label>
-        <p class="help"><a class="g-ad-link" href="${escapeAttr(compAdUrl(comp))}" target="_blank" rel="noopener noreferrer">Open listing</a></p>
+        <label>Ad URL<input data-field="url" value="${escapeAttr(comp.url)}" placeholder="https://… the listing page, not a search" /></label>
+        ${
+          compAdUrl(comp)
+            ? `<p class="help"><a class="g-ad-link" href="${escapeAttr(compAdUrl(comp))}" target="_blank" rel="noopener noreferrer">Open the ad</a></p>`
+            : `<p class="help">no ad link — paste the listing URL or attach a photo</p>`
+        }
         <label>Notes<textarea data-field="notes" rows="2">${escapeText(comp.notes)}</textarea></label>
         <button type="button" class="btn danger" data-delete-comp="${comp.id}">Remove</button>
       </article>`,
@@ -478,7 +482,7 @@ function addComp() {
     location: '',
     condition: '',
     source: '',
-    url: marketSearchUrl(state.vehicleId, year),
+    url: '',
     photo: '',
     listedOn: todayStamp(),
     daysListed: null,
@@ -534,14 +538,20 @@ function takeAdFile(file: File | null) {
 async function trackAd() {
   if (!state.store || !state.vehicleId) return;
   const file = adFile().files?.[0];
-  if (!file) {
-    setStatus('Add a photo of the listing first.', 'err');
+  const rawUrl = input('ad-url').value.trim();
+  const url = listingAdUrl(rawUrl);
+  if (rawUrl && !url) {
+    setStatus('That looks like a search page, not the ad. Paste the listing URL.', 'err');
     return;
   }
-  setStatus('Uploading the listing photo…', 'busy');
+  if (!file && !url) {
+    setStatus('Add the ad URL or a photo of the listing.', 'err');
+    return;
+  }
+  setStatus(file ? 'Uploading the listing photo…' : 'Saving the listing…', 'busy');
   try {
     stashEdits();
-    const photo = await uploadAdPhoto(file);
+    const photo = file ? await uploadAdPhoto(file) : '';
     const vehicle = currentVehicle();
     state.store.comps.unshift({
       id: newId('cmp'),
@@ -553,8 +563,8 @@ async function trackAd() {
       hours: null,
       location: '',
       condition: '',
-      source: input('ad-source').value.trim() || 'Listing photo',
-      url: input('ad-url').value.trim() || marketSearchUrl(state.vehicleId, vehicle.year),
+      source: input('ad-source').value.trim() || (photo ? 'Listing photo' : 'Desk'),
+      url,
       photo,
       listedOn: todayStamp(),
       daysListed: null,
@@ -570,7 +580,7 @@ async function trackAd() {
     adFile().value = '';
     showAdPreview(null);
     renderComps();
-    if (await save()) setStatus('Listing saved with the photo.');
+    if (await save()) setStatus(photo ? 'Listing saved with the photo.' : 'Listing saved.');
   } catch (err) {
     setStatus(err instanceof Error ? err.message : 'Could not add that listing.', 'err');
   }

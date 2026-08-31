@@ -131,7 +131,11 @@ function listingCell(comp: Comp, extra = '') {
   const href = escapeHtml(compAdUrl(comp));
   const photo = safePhotoSrc(comp.photo);
   const thumb = photo ? `<img class="g-thumb" src="${escapeHtml(photo)}" alt="" />` : '';
-  return `<td><a class="g-ad-link" href="${href}" target="_blank" rel="noopener noreferrer">${thumb}<span>${escapeHtml(comp.title)}</span></a>${extra}</td>`;
+  const title = `<span>${escapeHtml(comp.title)}</span>`;
+  const body = href
+    ? `<a class="g-ad-link" href="${href}" target="_blank" rel="noopener noreferrer">${thumb}${title}</a>`
+    : `<span class="g-listing-plain">${thumb}${title}</span><p class="sub">no ad link</p>`;
+  return `<td>${body}${extra}</td>`;
 }
 
 function marketMeta(store: GarageStore, date?: string) {
@@ -362,22 +366,28 @@ function renderVehicle(store: GarageStore, slug: string) {
             <th>Listing</th><th class="num">Ask</th><th class="num">Miles</th><th>Where</th>
           </tr></thead>
           <tbody>
-            ${asking
-              .map(
-                (comp) => `
+            ${
+              asking
+                .map(
+                  (comp) => `
               <tr>
                 ${listingCell(comp)}
                 <td class="num">${dollars(comp.price)}</td>
                 <td class="num">${comp.miles ?? '—'}</td>
                 <td>${comp.location}<p class="sub">${prettyDate(comp.listedOn)}</p></td>
               </tr>`,
-              )
-              .join('')}
+                )
+                .join('') || `<tr><td class="g-note" colspan="4">No listings yet — Get Denver prices</td></tr>`
+            }
           </tbody>
         </table>
       </div>
     </div>
-    <p class="g-note" style="margin-top: 1rem">${history.length} days of Denver prices on file. Market: ${store.market.radiusMiles} miles of ${store.market.center}.</p>
+    <p class="g-note" style="margin-top: 1rem">${
+      history.length
+        ? `${history.length} days of Denver prices on file. ${store.market.radiusMiles} miles of ${store.market.center}.`
+        : `No Denver prices on file yet. ${store.market.radiusMiles} miles of ${store.market.center}.`
+    }</p>
     ${
       notes.length
         ? `<div class="g-section"><h2>Notes</h2><p>${notes.length}</p></div><div class="g-grid two">${notes
