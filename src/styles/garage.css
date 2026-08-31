@@ -173,6 +173,10 @@ body[data-garage-view='desk'] .g-nav a[data-nav='desk'] {
   text-transform: uppercase;
 }
 
+.g-stack span {
+  display: block;
+}
+
 .g-stack .accent {
   color: var(--terra);
 }
