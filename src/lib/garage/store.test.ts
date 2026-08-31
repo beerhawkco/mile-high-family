@@ -58,6 +58,7 @@ describe('garage store', () => {
       condition: 'Clean',
       source: 'Private',
       url: '',
+      photo: '',
       listedOn: '2026-08-31',
       daysListed: null,
       soldPrice: null,

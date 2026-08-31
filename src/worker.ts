@@ -21,6 +21,7 @@ export interface Env {
 }
 
 const KV_KEY = 'store';
+const PHOTO_KEY = (id: string) => `photo:${id}`;
 const REPO_PATH = 'src/content/garage/store.json';
 
 async function fromKv(env: Env): Promise<GarageStore | null> {
@@ -92,6 +93,15 @@ function runtime(env: Env) {
     sessionSecret: env.GARAGE_SESSION_SECRET || '',
     load: () => loadStore(env),
     save: (store: GarageStore) => saveStore(env, store),
+    putPhoto: async (id: string, encoded: string) => {
+      if (!env.GARAGE) throw new Error('Bind a GARAGE KV namespace to keep ad photos.');
+      await env.GARAGE.put(PHOTO_KEY(id), encoded);
+    },
+    getPhoto: async (id: string) => {
+      if (!env.GARAGE) return null;
+      const raw = await env.GARAGE.get(PHOTO_KEY(id), 'json');
+      return raw == null ? null : JSON.stringify(raw);
+    },
   };
 }
 

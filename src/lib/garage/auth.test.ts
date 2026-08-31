@@ -90,4 +90,55 @@ describe('garage http', () => {
     const text = await res.text();
     assert.doesNotMatch(text, /github_pat_|ghp_/);
   });
+
+  it('stores an ad photo only after sign-in', async () => {
+    const files = new Map<string, string>();
+    const seed = createSeedStore();
+    const runtime = {
+      adminUser: 'ada',
+      adminPassword: 'correct-horse',
+      sessionSecret: 'session-secret-16',
+      load: async () => seed,
+      save: async () => undefined,
+      putPhoto: async (id: string, encoded: string) => {
+        files.set(id, encoded);
+      },
+      getPhoto: async (id: string) => files.get(id) ?? null,
+    };
+    const locked = await handleGarageRequest(
+      new Request('http://localhost/api/garage/photo', {
+        method: 'POST',
+        body: (() => {
+          const form = new FormData();
+          form.set('file', new File([new Uint8Array([255, 216, 255])], 'ad.jpg', { type: 'image/jpeg' }));
+          return form;
+        })(),
+      }),
+      runtime,
+    );
+    assert.equal(locked.status, 401);
+
+    const login = await handleGarageRequest(
+      new Request('http://localhost/api/garage/login', {
+        method: 'POST',
+        body: JSON.stringify({ username: 'ada', password: 'correct-horse' }),
+      }),
+      runtime,
+    );
+    const cookie = login.headers.get('set-cookie') ?? '';
+    const form = new FormData();
+    form.set('file', new File([new Uint8Array([255, 216, 255, 1, 2, 3])], 'ad.jpg', { type: 'image/jpeg' }));
+    const uploaded = await handleGarageRequest(
+      new Request('http://localhost/api/garage/photo', { method: 'POST', headers: { cookie }, body: form }),
+      runtime,
+    );
+    assert.equal(uploaded.status, 200);
+    const body = (await uploaded.json()) as { url?: string };
+    assert.match(body.url ?? '', /\/api\/garage\/photo\/pho_[a-f0-9]{12}$/);
+
+    const photo = await handleGarageRequest(new Request(`http://localhost${body.url}`, { headers: { cookie } }), runtime);
+    assert.equal(photo.status, 200);
+    assert.equal(photo.headers.get('content-type'), 'image/jpeg');
+    assert.equal((await photo.arrayBuffer()).byteLength, 6);
+  });
 });

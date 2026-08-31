@@ -1,4 +1,5 @@
 import { newId, snapshotId } from './ids.ts';
+import { safePhotoSrc } from './photos.ts';
 import { todayStamp, parseStore } from './store.ts';
 import type { Comp, GarageStore, SentimentNote, Snapshot, Vehicle, VehicleId } from './types.ts';
 
@@ -224,6 +225,9 @@ function renderComps() {
     .map(
       (comp) => `
       <article class="item" data-comp="${comp.id}">
+        ${comp.photo && safePhotoSrc(comp.photo) ? `<img class="g-ad-shot" src="${safePhotoSrc(comp.photo)}" alt="" />` : ''}
+        <label>Ad photo<input data-comp-photo="${comp.id}" type="file" accept="image/jpeg,image/png,image/webp,image/*" /></label>
+        <input data-field="photo" type="hidden" value="${escapeAttr(comp.photo)}" />
         <label>Title<input data-field="title" value="${escapeAttr(comp.title)}" /></label>
         <div class="grid">
           <label>Year<input data-field="year" type="number" value="${comp.year}" /></label>
@@ -312,6 +316,7 @@ function readComp(article: HTMLElement, vehicleId: VehicleId): Comp {
     condition: get('condition').trim(),
     source: get('source').trim(),
     url: get('url').trim(),
+    photo: get('photo').trim(),
     listedOn: get('listedOn') || todayStamp(),
     status: get('status') as Comp['status'],
     notes: get('notes').trim(),
@@ -424,15 +429,17 @@ async function logout() {
 }
 
 async function save() {
-  if (!state.store) return;
+  if (!state.store) return false;
   setStatus('Saving…', 'busy');
   try {
     stashEdits();
     state.store = parseStore(await api('/api/garage/store', { method: 'PUT', body: JSON.stringify(state.store) }));
     renderAll();
     setStatus('Saved. Public pages pick this up on the next refresh or deploy.');
+    return true;
   } catch (err) {
     setStatus(err instanceof Error ? err.message : 'Save failed.', 'err');
+    return false;
   }
 }
 
@@ -468,6 +475,7 @@ function addComp() {
     condition: '',
     source: '',
     url: '',
+    photo: '',
     listedOn: todayStamp(),
     daysListed: null,
     soldPrice: null,
@@ -475,6 +483,93 @@ function addComp() {
     notes: '',
   });
   renderComps();
+}
+
+async function uploadAdPhoto(file: File) {
+  if (file.size > 4_000_000) throw new Error('That photo is over 4 MB.');
+  const body = new FormData();
+  body.append('file', file);
+  const res = await fetch('/api/garage/photo', { method: 'POST', credentials: 'same-origin', body });
+  const data = (await res.json().catch(() => ({}))) as { error?: string; url?: string };
+  if (!res.ok || !data.url) throw new Error(data.error || 'Photo upload failed.');
+  return data.url;
+}
+
+function adFile() {
+  return document.getElementById('ad-file') as HTMLInputElement;
+}
+
+function showAdPreview(file: File | null) {
+  const preview = document.getElementById('ad-preview') as HTMLImageElement | null;
+  const hint = document.getElementById('ad-drop-hint');
+  if (!preview) return;
+  if (preview.dataset.url) URL.revokeObjectURL(preview.dataset.url);
+  if (!file) {
+    preview.removeAttribute('src');
+    preview.classList.add('hidden');
+    delete preview.dataset.url;
+    if (hint) hint.classList.remove('hidden');
+    return;
+  }
+  const url = URL.createObjectURL(file);
+  preview.dataset.url = url;
+  preview.src = url;
+  preview.classList.remove('hidden');
+  if (hint) hint.classList.add('hidden');
+}
+
+function takeAdFile(file: File | null) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const input = adFile();
+  const transfer = new DataTransfer();
+  transfer.items.add(file);
+  input.files = transfer.files;
+  showAdPreview(file);
+}
+
+async function trackAd() {
+  if (!state.store || !state.vehicleId) return;
+  const file = adFile().files?.[0];
+  if (!file) {
+    setStatus('Add a photo of the ad first.', 'err');
+    return;
+  }
+  setStatus('Uploading the ad photo…', 'busy');
+  try {
+    stashEdits();
+    const photo = await uploadAdPhoto(file);
+    const vehicle = currentVehicle();
+    state.store.comps.unshift({
+      id: newId('cmp'),
+      vehicleId: state.vehicleId,
+      title: input('ad-title').value.trim() || `${vehicle.year} ${vehicle.make} ${vehicle.model} ad`,
+      year: vehicle.year,
+      price: Number(input('ad-price').value) || 0,
+      miles: null,
+      hours: null,
+      location: '',
+      condition: '',
+      source: input('ad-source').value.trim() || 'Ad clip',
+      url: input('ad-url').value.trim(),
+      photo,
+      listedOn: todayStamp(),
+      daysListed: null,
+      soldPrice: null,
+      status: 'active',
+      notes: input('ad-notes').value.trim(),
+    });
+    input('ad-title').value = '';
+    input('ad-price').value = '';
+    input('ad-url').value = '';
+    input('ad-source').value = '';
+    input('ad-notes').value = '';
+    adFile().value = '';
+    showAdPreview(null);
+    renderComps();
+    if (await save()) setStatus('Ad is on the tape. Photo saved with this unit.');
+  } catch (err) {
+    setStatus(err instanceof Error ? err.message : 'Could not track that ad.', 'err');
+  }
 }
 
 function addNote() {
@@ -507,7 +602,29 @@ export function boot() {
   $('save-btn').addEventListener('click', () => void save());
   $('pulse-btn').addEventListener('click', () => void pulse());
   $('add-comp').addEventListener('click', addComp);
+  $('track-ad-btn').addEventListener('click', () => void trackAd());
   $('add-note').addEventListener('click', addNote);
+  adFile().addEventListener('change', () => takeAdFile(adFile().files?.[0] ?? null));
+  const drop = $('ad-drop');
+  drop.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    drop.classList.add('over');
+  });
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop.addEventListener('drop', (event) => {
+    event.preventDefault();
+    drop.classList.remove('over');
+    takeAdFile(event.dataTransfer?.files?.[0] ?? null);
+  });
+  document.addEventListener('paste', (event) => {
+    if ($('app-panel').classList.contains('hidden')) return;
+    const item = [...(event.clipboardData?.items ?? [])].find((entry) => entry.type.startsWith('image/'));
+    const file = item?.getAsFile();
+    if (file) {
+      event.preventDefault();
+      takeAdFile(file);
+    }
+  });
   input('vehicle').addEventListener('change', () => {
     stashEdits();
     rememberVehicle(input('vehicle').value as VehicleId);
@@ -516,6 +633,26 @@ export function boot() {
   input('snap-date').addEventListener('change', () => {
     stashEdits();
     renderAll();
+  });
+  $('comp-list').addEventListener('change', (event) => {
+    const picker = (event.target as HTMLElement).closest('input[data-comp-photo]') as HTMLInputElement | null;
+    if (!picker?.files?.[0] || !state.store) return;
+    const id = picker.getAttribute('data-comp-photo');
+    const file = picker.files[0];
+    void (async () => {
+      setStatus('Uploading the ad photo…', 'busy');
+      try {
+        stashEdits();
+        const photo = await uploadAdPhoto(file);
+        const hidden = document.querySelector(`[data-comp="${id}"] [data-field="photo"]`) as HTMLInputElement | null;
+        if (hidden) hidden.value = photo;
+        stashEdits();
+        renderComps();
+        setStatus('Photo attached. Save to keep it on this ad.');
+      } catch (err) {
+        setStatus(err instanceof Error ? err.message : 'Photo upload failed.', 'err');
+      }
+    })();
   });
   $('comp-list').addEventListener('click', (event) => {
     const button = (event.target as HTMLElement).closest('[data-delete-comp]');

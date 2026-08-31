@@ -6,6 +6,8 @@ import {
   readSession,
   signSession,
 } from './auth.ts';
+import { newId } from './ids.ts';
+import { decodePhoto, encodePhoto, isPhotoId, PHOTO_MAX_BYTES, photoPath, sniffType } from './photos.ts';
 import { applyDailyPulse } from './pulse.ts';
 import { parseStore, todayStamp } from './store.ts';
 import type { GarageStore } from './types.ts';
@@ -16,6 +18,8 @@ export type GarageRuntime = {
   sessionSecret: string;
   load: () => Promise<GarageStore>;
   save: (store: GarageStore) => Promise<void>;
+  putPhoto?: (id: string, encoded: string) => Promise<void>;
+  getPhoto?: (id: string) => Promise<string | null>;
 };
 
 function json(data: unknown, status = 200, headers?: HeadersInit) {
@@ -95,6 +99,46 @@ export async function handleGarageRequest(request: Request, runtime: GarageRunti
     const { store, notes } = await applyDailyPulse(await runtime.load(), date);
     await runtime.save(store);
     return json({ store, notes });
+  }
+
+  if (path === '/api/garage/photo' && request.method === 'POST') {
+    if (!(await requireUser(request, runtime))) return error('Sign in first.', 401);
+    if (!runtime.putPhoto) return error('Photo storage is not configured on this host.', 503);
+    let file: File | null = null;
+    try {
+      const form = await request.formData();
+      const raw = form.get('file');
+      file = raw instanceof File ? raw : null;
+    } catch {
+      return error('Send the photo as a file upload.', 400);
+    }
+    if (!file || file.size === 0) return error('Choose a photo of the ad.', 400);
+    if (file.size > PHOTO_MAX_BYTES) return error('That photo is over 4 MB.', 400);
+    const type = sniffType(file);
+    if (!type) return error('Use a JPEG, PNG, or WebP screenshot of the ad.', 400);
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const id = newId('pho');
+    await runtime.putPhoto(id, encodePhoto(bytes, type));
+    return json({ ok: true, id, url: photoPath(id) });
+  }
+
+  if (path.startsWith('/api/garage/photo/') && request.method === 'GET') {
+    if (!(await requireUser(request, runtime))) return error('Sign in first.', 401);
+    const id = path.slice('/api/garage/photo/'.length);
+    if (!isPhotoId(id) || !runtime.getPhoto) return error('Photo not found.', 404);
+    let decoded = null;
+    try {
+      decoded = decodePhoto(JSON.parse((await runtime.getPhoto(id)) || 'null'));
+    } catch {
+      decoded = null;
+    }
+    if (!decoded) return error('Photo not found.', 404);
+    return new Response(decoded.bytes, {
+      headers: {
+        'content-type': decoded.type,
+        'cache-control': 'private, max-age=86400',
+      },
+    });
   }
 
   return error('Not found.', 404);

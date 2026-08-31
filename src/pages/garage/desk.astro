@@ -135,8 +135,30 @@ import '../../styles/garage.css';
 
         <div class="g-card" style="margin-top: 1rem">
           <div class="row">
+            <h2>Track an ad</h2>
+            <p class="help">Screenshot or listing photo of an ad you want followed</p>
+          </div>
+          <div id="ad-drop" class="g-drop">
+            <input id="ad-file" type="file" accept="image/jpeg,image/png,image/webp,image/*" />
+            <img id="ad-preview" alt="" class="g-preview hidden" />
+            <p id="ad-drop-hint">Drop, paste, or choose a photo of the ad</p>
+          </div>
+          <div class="grid">
+            <label>Title<input id="ad-title" type="text" placeholder="2019 Thor 28A · Castle Rock" /></label>
+            <label>Ask<input id="ad-price" type="number" step="100" /></label>
+            <label>Ad URL<input id="ad-url" type="url" placeholder="https://…" /></label>
+            <label>Source<input id="ad-source" type="text" placeholder="FB Marketplace, Craigslist…" /></label>
+          </div>
+          <label>Notes<textarea id="ad-notes" rows="2" placeholder="What you want remembered about this ad"></textarea></label>
+          <div class="toolbar">
+            <button type="button" id="track-ad-btn" class="btn">Track this ad</button>
+          </div>
+        </div>
+
+        <div class="g-card" style="margin-top: 1rem">
+          <div class="row">
             <h2>Comps</h2>
-            <button type="button" id="add-comp" class="btn ghost">Add comp</button>
+            <button type="button" id="add-comp" class="btn ghost">Add blank comp</button>
           </div>
           <div id="comp-list" class="list"></div>
         </div>

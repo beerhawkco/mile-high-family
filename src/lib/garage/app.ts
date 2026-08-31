@@ -2,6 +2,7 @@ import { gaugeDegrees, gaugeNeedle, medianSeries, sparkPath, sparkPoints } from 
 import { OWNED_LABEL, prettyDate } from './labels.ts';
 import { vehiclePath } from './market.ts';
 import { compactDollars, dollars, signedDollars } from './money.ts';
+import { safePhotoSrc } from './photos.ts';
 import { ourDaysListed, vsMarket } from './market.ts';
 import { compsFor, latestSnapshot, parseStore, sentimentsFor, snapshotsFor, todayStamp } from './store.ts';
 import type { GarageStore, Vehicle } from './types.ts';
@@ -327,7 +328,7 @@ function renderVehicle(store: GarageStore, slug: string) {
                 .map(
                   (comp) => `
               <tr>
-                <td>${comp.title}<p class="sub">${comp.notes}</p></td>
+                <td>${comp.photo && safePhotoSrc(comp.photo) ? `<img class="g-thumb" src="${safePhotoSrc(comp.photo)}" alt="" />` : ''}${comp.title}<p class="sub">${comp.notes}</p></td>
                 <td class="num">${dollars(comp.soldPrice ?? comp.price)}</td>
                 <td class="num">${daysText(comp.daysListed)}</td>
                 <td>${comp.location}</td>
@@ -354,7 +355,7 @@ function renderVehicle(store: GarageStore, slug: string) {
               .map(
                 (comp) => `
               <tr>
-                <td>${comp.title}</td>
+                <td>${comp.photo && safePhotoSrc(comp.photo) ? `<img class="g-thumb" src="${safePhotoSrc(comp.photo)}" alt="" />` : ''}${comp.title}</td>
                 <td class="num">${dollars(comp.price)}</td>
                 <td class="num">${comp.miles ?? '—'}</td>
                 <td>${comp.location}<p class="sub">${prettyDate(comp.listedOn)}</p></td>

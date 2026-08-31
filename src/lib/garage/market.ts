@@ -110,6 +110,7 @@ export function mergeListings(
           condition: '',
           source: `${listing.source} (left the market)`,
           url: listing.url,
+          photo: '',
           listedOn: listing.firstSeen,
           daysListed: days,
           status: 'sold',

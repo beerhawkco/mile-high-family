@@ -525,6 +525,7 @@ export function createSeedStore(end = SEED_END, start = SEED_START): GarageStore
   store.comps = comps.map((comp) => ({
     soldPrice: null,
     daysListed: null,
+    photo: '',
     ...comp,
   }));
   store.sentiments = sentiments.filter((note) => note.date <= end);

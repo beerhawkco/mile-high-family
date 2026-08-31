@@ -15,6 +15,25 @@ function localEnv() {
   };
 }
 
+async function filePhotos(root: string) {
+  const dir = resolve(root, 'src/content/garage/photos');
+
+  async function putPhoto(id: string, encoded: string) {
+    await mkdir(dir, { recursive: true });
+    await writeFile(resolve(dir, `${id}.json`), encoded);
+  }
+
+  async function getPhoto(id: string) {
+    try {
+      return await readFile(resolve(dir, `${id}.json`), 'utf8');
+    } catch {
+      return null;
+    }
+  }
+
+  return { putPhoto, getPhoto };
+}
+
 async function fileStore(root: string) {
   const file = resolve(root, STORE_PATH);
 
@@ -74,8 +93,9 @@ export function garageDevApi(root = process.cwd()): Plugin {
         if (!path.startsWith('/api/garage')) return next();
         try {
           const store = await fileStore(root);
+          const photos = await filePhotos(root);
           const request = await nodeRequestToFetch(req, req.headers.host || 'localhost');
-          const response = await handleGarageRequest(request, { ...localEnv(), ...store });
+          const response = await handleGarageRequest(request, { ...localEnv(), ...store, ...photos });
           await writeFetch(res, response);
         } catch (err) {
           res.statusCode = 500;

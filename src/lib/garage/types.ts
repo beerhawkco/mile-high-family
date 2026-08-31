@@ -100,6 +100,7 @@ export type Comp = {
   condition: string;
   source: string;
   url: string;
+  photo: string;
   listedOn: string;
   daysListed: number | null;
   status: CompStatus;

@@ -225,6 +225,7 @@ function parseComp(raw: unknown): Comp {
     condition: isString(raw.condition) ? raw.condition : '',
     source: isString(raw.source) ? raw.source : '',
     url: isString(raw.url) ? raw.url : '',
+    photo: isString(raw.photo) ? raw.photo : '',
     listedOn: dateOk(raw.listedOn) ? raw.listedOn : '',
     daysListed: raw.daysListed == null || raw.daysListed === '' ? null : Number(raw.daysListed),
     status: raw.status,
