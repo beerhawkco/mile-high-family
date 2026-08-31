@@ -383,7 +383,11 @@ function renderVehicle(store: GarageStore, slug: string) {
         </table>
       </div>
     </div>
-    <p class="g-note" style="margin-top: 1rem">${history.length} days of Denver prices on file. Market: ${store.market.radiusMiles} miles of ${store.market.center}.</p>
+    <p class="g-note" style="margin-top: 1rem">${
+      history.length
+        ? `${history.length} days of Denver prices on file. ${store.market.radiusMiles} miles of ${store.market.center}.`
+        : `No Denver prices on file yet. ${store.market.radiusMiles} miles of ${store.market.center}.`
+    }</p>
     ${
       notes.length
         ? `<div class="g-section"><h2>Notes</h2><p>${notes.length}</p></div><div class="g-grid two">${notes

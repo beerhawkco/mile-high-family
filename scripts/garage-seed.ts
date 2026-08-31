@@ -7,4 +7,4 @@ const file = resolve(process.cwd(), STORE_PATH);
 const store = createSeedStore();
 await mkdir(dirname(file), { recursive: true });
 await writeFile(file, `${JSON.stringify(store, null, 2)}\n`);
-console.log(`Wrote ${store.snapshots.length} snapshots to ${STORE_PATH}`);
+console.log(`Wrote ${store.vehicles.length} vehicles and no sample market rows to ${STORE_PATH}`);
