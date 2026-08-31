@@ -232,7 +232,7 @@ function renderVehicle(store: GarageStore, slug: string) {
               <tr>
                 <td>${comp.title}<p class="sub">${comp.notes}</p></td>
                 <td class="num">${dollars(comp.soldPrice ?? comp.price)}</td>
-                <td class="num">${comp.daysListed ?? '—'}d</td>
+                <td class="num">${daysText(comp.daysListed)}</td>
                 <td>${comp.location}</td>
               </tr>`,
                 )
