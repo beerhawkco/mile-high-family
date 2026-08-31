@@ -86,7 +86,7 @@ describe('garage http', () => {
       save: async () => undefined,
     };
     const res = await handleGarageRequest(new Request('http://localhost/api/garage/public'), runtime);
-    assert.equal(res.status, 200);
+    assert.equal(res.status, 404);
     const text = await res.text();
     assert.doesNotMatch(text, /github_pat_|ghp_/);
   });

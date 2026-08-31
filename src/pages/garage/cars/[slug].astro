@@ -1,0 +1,9 @@
+---
+import GarageLayout from '../../../layouts/GarageLayout.astro';
+
+export function getStaticPaths() {
+  return [{ params: { slug: 'tesla-model-y-lr' } }];
+}
+---
+
+<GarageLayout title="Car · Garage" view="vehicle" slug={Astro.params.slug} />

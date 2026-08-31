@@ -115,7 +115,7 @@ export default {
   async scheduled(_event: unknown, env: Env, ctx: { waitUntil: (promise: Promise<unknown>) => void }) {
     ctx.waitUntil(
       (async () => {
-        const { store, changed } = applyDailyPulse(await loadStore(env));
+        const { store, changed } = await applyDailyPulse(await loadStore(env));
         if (changed) await saveStore(env, store);
       })(),
     );

@@ -1,4 +1,4 @@
-import type { CompStatus, NoteTone, SentimentTone, Trend, VehicleKind } from './types.ts';
+import type { CompStatus, NoteTone, OwnedStatus, SentimentTone, Trend, VehicleKind } from './types.ts';
 
 export const TONE_LABEL: Record<SentimentTone, string> = {
   hot: 'Hot',
@@ -26,8 +26,19 @@ export const NOTE_LABEL: Record<NoteTone, string> = {
 };
 
 export const KIND_LABEL: Record<VehicleKind, string> = {
-  rv: 'Motorhome',
-  ev: 'Electric',
+  rv: 'RV',
+  car: 'Car',
+};
+
+export const SECTION_LABEL = {
+  cars: 'Cars',
+  rvs: 'RVs',
+} as const;
+
+export const OWNED_LABEL: Record<OwnedStatus, string> = {
+  preparing: 'Not listed yet',
+  listed: 'Listed',
+  sold: 'Sold',
 };
 
 export function prettyDate(iso: string) {

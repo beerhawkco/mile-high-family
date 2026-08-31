@@ -1,13 +1,17 @@
 import { snapshotId } from './ids.ts';
 import {
   COMP_STATUSES,
+  INTENTS,
   NOTE_TONES,
+  OWNED_STATUSES,
   PULSE_SOURCES,
   SENTIMENT_TONES,
   TRENDS,
   VEHICLE_IDS,
   type Comp,
   type GarageStore,
+  type MarketListing,
+  type OwnedUnit,
   type PulseSource,
   type SentimentNote,
   type Snapshot,
@@ -37,14 +41,32 @@ function dateOk(value: unknown): value is string {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
 }
 
+export function emptyOwned(): OwnedUnit {
+  return {
+    status: 'preparing',
+    askingPrice: null,
+    targetPrice: null,
+    listedOn: '',
+    miles: null,
+    hours: null,
+    condition: '',
+    listingUrl: '',
+    soldPrice: null,
+    soldOn: '',
+    notes: '',
+  };
+}
+
 export function emptyStore(updatedAt = new Date().toISOString()): GarageStore {
   return {
     version: 1,
     updatedAt,
+    market: { center: 'Denver, CO', radiusMiles: 250 },
     vehicles: [],
     snapshots: [],
     comps: [],
     sentiments: [],
+    listings: [],
   };
 }
 
@@ -65,12 +87,21 @@ export function parseStore(raw: unknown): GarageStore {
   const store: GarageStore = {
     version: 1,
     updatedAt: raw.updatedAt,
+    market: parseMarket(raw.market),
     vehicles: raw.vehicles.map(parseVehicle),
     snapshots: raw.snapshots.map(parseSnapshot),
     comps: raw.comps.map(parseComp),
     sentiments: raw.sentiments.map(parseSentiment),
+    listings: Array.isArray(raw.listings) ? raw.listings.map(parseListing) : [],
   };
   return store;
+}
+
+function parseMarket(raw: unknown) {
+  if (isObject(raw) && isString(raw.center) && isFiniteNumber(raw.radiusMiles)) {
+    return { center: raw.center, radiusMiles: raw.radiusMiles };
+  }
+  return { center: 'Denver, CO', radiusMiles: 250 };
 }
 
 function parseVehicle(raw: unknown): Vehicle {
@@ -79,7 +110,7 @@ function parseVehicle(raw: unknown): Vehicle {
   if (typeof raw.year !== 'number' || !isString(raw.make) || !isString(raw.model) || !isString(raw.trim)) {
     throw new Error(`Vehicle ${raw.id} is missing year/make/model.`);
   }
-  if (raw.kind !== 'rv' && raw.kind !== 'ev') throw new Error(`Vehicle ${raw.id} has an unknown kind.`);
+  const kind = raw.kind === 'rv' ? 'rv' : 'car';
   if (!Array.isArray(raw.specs)) throw new Error(`Vehicle ${raw.id} is missing specs.`);
   return {
     id: raw.id,
@@ -87,7 +118,8 @@ function parseVehicle(raw: unknown): Vehicle {
     make: raw.make,
     model: raw.model,
     trim: raw.trim,
-    kind: raw.kind,
+    kind,
+    intent: (INTENTS as readonly string[]).includes(String(raw.intent)) ? (raw.intent as Vehicle['intent']) : 'sell',
     name: raw.name,
     shortName: raw.shortName,
     category: isString(raw.category) ? raw.category : '',
@@ -101,6 +133,27 @@ function parseVehicle(raw: unknown): Vehicle {
         return isObject(item) && isString(item.label) && isString(item.value);
       })
       .map((item) => ({ label: item.label, value: item.value })),
+    owned: parseOwned(raw.owned),
+  };
+}
+
+function parseOwned(raw: unknown): OwnedUnit {
+  const base = emptyOwned();
+  if (!isObject(raw)) return base;
+  return {
+    status: (OWNED_STATUSES as readonly string[]).includes(String(raw.status))
+      ? (raw.status as OwnedUnit['status'])
+      : base.status,
+    askingPrice: raw.askingPrice == null || raw.askingPrice === '' ? null : Number(raw.askingPrice),
+    targetPrice: raw.targetPrice == null || raw.targetPrice === '' ? null : Number(raw.targetPrice),
+    listedOn: dateOk(raw.listedOn) ? raw.listedOn : '',
+    miles: raw.miles == null || raw.miles === '' ? null : Number(raw.miles),
+    hours: raw.hours == null || raw.hours === '' ? null : Number(raw.hours),
+    condition: isString(raw.condition) ? raw.condition : '',
+    listingUrl: isString(raw.listingUrl) ? raw.listingUrl : '',
+    soldPrice: raw.soldPrice == null || raw.soldPrice === '' ? null : Number(raw.soldPrice),
+    soldOn: dateOk(raw.soldOn) ? raw.soldOn : '',
+    notes: isString(raw.notes) ? raw.notes : '',
   };
 }
 
@@ -135,8 +188,10 @@ function parseSnapshot(raw: unknown): Snapshot {
     askingHigh: raw.askingHigh,
     askingMedian: raw.askingMedian,
     soldMedian: raw.soldMedian == null ? null : Number(raw.soldMedian),
+    soldCount: isFiniteNumber(raw.soldCount) ? raw.soldCount : 0,
     listingCount: raw.listingCount,
     daysOnMarket: raw.daysOnMarket,
+    medianDaysToSale: raw.medianDaysToSale == null || raw.medianDaysToSale === '' ? null : Number(raw.medianDaysToSale),
     sentiment: raw.sentiment,
     sentimentScore: raw.sentimentScore,
     trend: raw.trend,
@@ -163,6 +218,7 @@ function parseComp(raw: unknown): Comp {
     title: raw.title,
     year: raw.year,
     price: raw.price,
+    soldPrice: raw.soldPrice == null || raw.soldPrice === '' ? null : Number(raw.soldPrice),
     miles: raw.miles == null || raw.miles === '' ? null : Number(raw.miles),
     hours: raw.hours == null || raw.hours === '' ? null : Number(raw.hours),
     location: isString(raw.location) ? raw.location : '',
@@ -170,6 +226,7 @@ function parseComp(raw: unknown): Comp {
     source: isString(raw.source) ? raw.source : '',
     url: isString(raw.url) ? raw.url : '',
     listedOn: dateOk(raw.listedOn) ? raw.listedOn : '',
+    daysListed: raw.daysListed == null || raw.daysListed === '' ? null : Number(raw.daysListed),
     status: raw.status,
     notes: isString(raw.notes) ? raw.notes : '',
   };
@@ -190,6 +247,27 @@ function parseSentiment(raw: unknown): SentimentNote {
     tone: raw.tone,
     summary: isString(raw.summary) ? raw.summary : '',
     url: isString(raw.url) ? raw.url : '',
+  };
+}
+
+function parseListing(raw: unknown): MarketListing {
+  if (!isObject(raw) || !isString(raw.id) || !isVehicleId(raw.vehicleId) || !isString(raw.sourceId)) {
+    throw new Error('A market listing is invalid.');
+  }
+  return {
+    id: raw.id,
+    vehicleId: raw.vehicleId,
+    sourceId: raw.sourceId,
+    title: isString(raw.title) ? raw.title : '',
+    price: isFiniteNumber(raw.price) ? raw.price : 0,
+    miles: raw.miles == null || raw.miles === '' ? null : Number(raw.miles),
+    hours: raw.hours == null || raw.hours === '' ? null : Number(raw.hours),
+    location: isString(raw.location) ? raw.location : '',
+    url: isString(raw.url) ? raw.url : '',
+    firstSeen: dateOk(raw.firstSeen) ? raw.firstSeen : '',
+    lastSeen: dateOk(raw.lastSeen) ? raw.lastSeen : '',
+    source: isString(raw.source) ? raw.source : '',
+    status: raw.status === 'gone' ? 'gone' : 'active',
   };
 }
 
@@ -337,6 +415,6 @@ export function carryForwardPulse(
   });
 }
 
-export function publicStore(store: GarageStore): GarageStore {
-  return parseStore(store);
+export function vehiclesIn(store: GarageStore, section: 'cars' | 'rvs') {
+  return store.vehicles.filter((vehicle) => (vehicle.kind === 'rv' ? 'rvs' : 'cars') === section);
 }

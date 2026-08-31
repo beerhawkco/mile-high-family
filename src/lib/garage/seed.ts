@@ -1,6 +1,6 @@
 import { snapshotId } from './ids.ts';
 import { addDays, emptyStore } from './store.ts';
-import type { Comp, GarageStore, SentimentNote, Snapshot, Trend, Vehicle, VehicleId } from './types.ts';
+import type { GarageStore, SentimentNote, Snapshot, Trend, Vehicle, VehicleId } from './types.ts';
 
 const THOR_HERO =
   'https://commons.wikimedia.org/wiki/Special:FilePath/Motorhome-RV-Class-C-Sprinter-Ford-Chassis.jpg?width=1600';
@@ -15,11 +15,12 @@ const vehicles: Vehicle[] = [
     model: 'Majestic',
     trim: '28A',
     kind: 'rv',
+    intent: 'sell',
     name: '2019 Thor Majestic 28A',
     shortName: 'Majestic 28A',
     category: 'Class C motorhome',
     summary:
-      'Ford E-450 Class C with a street-side slide. Family sleeper, gasoline, and a market that is still cooling after the pandemic spike.',
+      'Our coach, for sale. Ford E-450 Class C with a street-side slide. Comps are 250 miles of Denver so we can price a real Front Range sale — and later use this same RV section to shop the next one.',
     notes: '',
     hero: THOR_HERO,
     heroAlt: 'A Thor Motor Coach Class C on a Ford chassis, representative of the body style',
@@ -33,6 +34,19 @@ const vehicles: Vehicle[] = [
       { label: 'Slide', value: 'One street-side' },
       { label: 'Typical GVWR', value: '14,500 lb' },
     ],
+    owned: {
+      status: 'preparing',
+      askingPrice: null,
+      targetPrice: 65000,
+      listedOn: '',
+      miles: null,
+      hours: null,
+      condition: '',
+      listingUrl: '',
+      soldPrice: null,
+      soldOn: '',
+      notes: 'Set our miles, hours, and ask on the desk before it goes live.',
+    },
   },
   {
     id: 'tesla-model-y-lr',
@@ -40,12 +54,13 @@ const vehicles: Vehicle[] = [
     make: 'Tesla',
     model: 'Model Y',
     trim: 'Long Range',
-    kind: 'ev',
+    kind: 'car',
+    intent: 'sell',
     name: '2024 Tesla Model Y Long Range',
     shortName: 'Model Y LR',
     category: 'Used compact electric SUV',
     summary:
-      'Dual-motor AWD family EV. Used 2024 Long Range asking prices are still sliding as the newer Juniper-bodied Model Y stacks up against last year’s Highland cars.',
+      'Our car, for sale. Dual-motor AWD. Used 2024 Long Range asks inside 250 miles of Denver are still sliding as newer Juniper-bodied Ys stack up against Highland cars.',
     notes: '',
     hero: TESLA_HERO,
     heroAlt: 'A 2023 Tesla Model Y Long Range photographed from the front three-quarter',
@@ -58,6 +73,19 @@ const vehicles: Vehicle[] = [
       { label: 'Charge port', value: 'NACS' },
       { label: 'Body', value: 'Highland (pre-Juniper)' },
     ],
+    owned: {
+      status: 'preparing',
+      askingPrice: null,
+      targetPrice: 36500,
+      listedOn: '',
+      miles: null,
+      hours: null,
+      condition: '',
+      listingUrl: '',
+      soldPrice: null,
+      soldOn: '',
+      notes: 'Set our miles and ask on the desk. Compare to sold prints first.',
+    },
   },
 ];
 
@@ -91,8 +119,10 @@ function thorSnapshots(dates: string[]): Snapshot[] {
       askingHigh: lerp(81900, 79200, t),
       askingMedian: median,
       soldMedian: lerp(65200, 63400, t),
+      soldCount: 3,
       listingCount: lerp(38, 46, t) + (weekend ? 2 : 0),
       daysOnMarket: lerp(54, 61, t),
+      medianDaysToSale: lerp(68, 71, t),
       sentiment: t > 0.7 ? 'cool' : 'warm',
       sentimentScore: lerp(12, -18, t),
       trend: trendFromDelta(median - week),
@@ -123,8 +153,10 @@ function teslaSnapshots(dates: string[]): Snapshot[] {
       askingHigh: lerp(44900, 42900, t),
       askingMedian: median,
       soldMedian: lerp(37600, 36100, t),
+      soldCount: 2,
       listingCount: lerp(210, 248, t),
       daysOnMarket: lerp(18, 22, t),
+      medianDaysToSale: lerp(16, 12, t),
       sentiment: t > 0.55 ? 'cool' : 'warm',
       sentimentScore: lerp(8, -22, t),
       trend: trendFromDelta(median - week),
@@ -140,7 +172,7 @@ function teslaSnapshots(dates: string[]): Snapshot[] {
   });
 }
 
-const comps: Comp[] = [
+const comps = [
   {
     id: 'cmp_thor_01',
     vehicleId: 'thor-majestic-28a',
@@ -208,18 +240,20 @@ const comps: Comp[] = [
   {
     id: 'cmp_thor_05',
     vehicleId: 'thor-majestic-28a',
-    title: '2019 Majestic 28A sold in Phoenix',
+    title: '2019 Majestic 28A sold in Parker',
     year: 2019,
     price: 63500,
+    soldPrice: 63500,
     miles: 33600,
     hours: 255,
-    location: 'Phoenix, AZ',
+    location: 'Parker, CO',
     condition: 'Average',
     source: 'Sold',
     url: '',
     listedOn: '2026-08-04',
+    daysListed: 71,
     status: 'sold',
-    notes: 'Sat 71 days. Sold $4,400 under original ask.',
+    notes: 'Sat 71 days. Sold $4,400 under original ask. Inside the 250-mile Denver ring.',
   },
   {
     id: 'cmp_thor_06',
@@ -229,13 +263,13 @@ const comps: Comp[] = [
     price: 69995,
     miles: 24800,
     hours: 190,
-    location: 'Salt Lake City, UT',
+    location: 'Greeley, CO',
     condition: 'Retail-ready',
     source: 'Dealer',
     url: '',
     listedOn: '2026-08-27',
     status: 'active',
-    notes: 'Add transport before comparing to Front Range.',
+    notes: 'Inside 250 miles of Denver.',
   },
   {
     id: 'cmp_thor_07',
@@ -313,7 +347,9 @@ const comps: Comp[] = [
     condition: 'Average',
     source: 'Sold',
     url: '',
+    soldPrice: 35800,
     listedOn: '2026-08-16',
+    daysListed: 9,
     status: 'sold',
     notes: 'Nine days on market. Good sold print.',
   },
@@ -368,18 +404,20 @@ const comps: Comp[] = [
   {
     id: 'cmp_y_08',
     vehicleId: 'tesla-model-y-lr',
-    title: '2024 Model Y LR sold · Phoenix',
+    title: '2024 Model Y LR sold · Longmont',
     year: 2024,
     price: 35100,
+    soldPrice: 35100,
     miles: 29800,
     hours: null,
-    location: 'Phoenix, AZ',
+    location: 'Longmont, CO',
     condition: 'Average',
     source: 'Sold',
     url: '',
     listedOn: '2026-08-11',
+    daysListed: 14,
     status: 'sold',
-    notes: 'Warmer-market sold. Adjust for Colorado winters/tires.',
+    notes: 'Fourteen days listed. Inside the Denver 250-mile ring.',
   },
 ];
 
@@ -484,7 +522,11 @@ export function createSeedStore(end = SEED_END, start = SEED_START): GarageStore
   const store = emptyStore(`${end}T16:00:00.000Z`);
   store.vehicles = vehicles;
   store.snapshots = [...thorSnapshots(dates), ...teslaSnapshots(dates)];
-  store.comps = comps;
+  store.comps = comps.map((comp) => ({
+    soldPrice: null,
+    daysListed: null,
+    ...comp,
+  }));
   store.sentiments = sentiments.filter((note) => note.date <= end);
   return store;
 }

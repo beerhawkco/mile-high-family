@@ -1,0 +1,9 @@
+---
+import GarageLayout from '../../../layouts/GarageLayout.astro';
+
+export function getStaticPaths() {
+  return [{ params: { slug: 'thor-majestic-28a' } }];
+}
+---
+
+<GarageLayout title="RV · Garage" view="vehicle" slug={Astro.params.slug} />

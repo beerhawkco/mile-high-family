@@ -28,17 +28,17 @@
   Referrer-Policy: no-referrer
   Cache-Control: no-store
 
-/garage/desk
+/garage
   X-Robots-Tag: noindex, nofollow, noarchive
   Referrer-Policy: no-referrer
   Cache-Control: no-store
 
-/garage/desk/
+/garage/
   X-Robots-Tag: noindex, nofollow, noarchive
   Referrer-Policy: no-referrer
   Cache-Control: no-store
 
-/garage/desk/*
+/garage/*
   X-Robots-Tag: noindex, nofollow, noarchive
   Referrer-Policy: no-referrer
   Cache-Control: no-store

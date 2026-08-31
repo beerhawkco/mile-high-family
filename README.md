@@ -33,31 +33,18 @@ Launch stories are starter editorial. Place photos are free Wikimedia Commons fi
 
 ## Garage
 
-Public market notebook at `/garage` for:
-
-- 2019 Thor Majestic 28A
-- 2024 Tesla Model Y Long Range
-
-The admin desk is `/garage/desk`. It is a **username and password** login. There is no GitHub personal access token in the browser.
-
-Local defaults (override with `.dev.vars` or env):
+Private selling notebook at `/garage` (not in the public nav, blocked from search). One admin login:
 
 - Username: `admin`
 - Password: `front-range-garage`
 
-`src/content/garage/store.json` is the notebook. Saving from the desk in `npm run dev` writes that file. A daily GitHub Action (`garage-daily.yml`, 7:15am Denver) carries yesterday’s numbers forward so the date does not go stale — then edit comps and sentiment from the desk.
+Summary shows both units. **Cars** and **RVs** are separate sections. Desk is `/garage/desk`.
 
-Production (Cloudflare Worker secrets, never pasted in the UI):
-
-- `GARAGE_ADMIN_USER`
-- `GARAGE_ADMIN_PASSWORD`
-- `GARAGE_SESSION_SECRET` (at least 16 characters)
-- Optional: KV namespace bound as `GARAGE` for instant saves
-- Optional: `GARAGE_GITHUB_TOKEN` so the Worker can commit `store.json` without anyone pasting a token
+The daily job (`garage-daily.yml` and the Worker cron) pulls live asking listings inside **250 miles of Denver** (Tesla used inventory + Denver Craigslist RSS for the Majestic), infers sold prints when a listing disappears, and records days listed before sale. If a fetch fails, yesterday’s numbers carry forward.
 
 ```sh
-npm run garage:seed    # rebuild starter comps
-npm run garage:pulse   # carry yesterday forward locally
+npm run garage:seed
+npm run garage:pulse
 ```
 
 ## Campfire

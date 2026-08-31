@@ -6,10 +6,11 @@ import { parseStore, STORE_PATH, todayStamp } from '../src/lib/garage/store.ts';
 const file = resolve(process.cwd(), STORE_PATH);
 const current = parseStore(JSON.parse(await readFile(file, 'utf8')));
 const date = process.env.GARAGE_PULSE_DATE || todayStamp();
-const { store, changed } = applyDailyPulse(current, date);
+const { store, changed, notes } = await applyDailyPulse(current, date);
 if (!changed) {
   console.log(`No garage pulse needed for ${date}.`);
   process.exit(0);
 }
 await writeFile(file, `${JSON.stringify(store, null, 2)}\n`);
 console.log(`Wrote daily pulse for ${date}.`);
+for (const note of notes) console.log(`- ${note}`);

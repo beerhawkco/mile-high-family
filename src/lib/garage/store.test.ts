@@ -59,6 +59,8 @@ describe('garage store', () => {
       source: 'Private',
       url: '',
       listedOn: '2026-08-31',
+      daysListed: null,
+      soldPrice: null,
       status: 'active',
       notes: '',
     });

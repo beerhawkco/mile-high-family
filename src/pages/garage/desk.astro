@@ -40,7 +40,7 @@ import '../../styles/global.css';
 
       <section id="app-panel" class="hidden">
         <div class="toolbar">
-          <a class="btn ghost" href="/garage/">Public garage</a>
+          <a class="btn ghost" href="/garage/">Garage summary</a>
           <button type="button" id="logout-btn" class="btn ghost">Sign out</button>
         </div>
 
@@ -53,13 +53,38 @@ import '../../styles/global.css';
             <select id="vehicle"></select>
           </label>
           <div class="toolbar">
-            <button type="button" id="pulse-btn" class="btn ghost">Carry yesterday forward</button>
+            <button type="button" id="pulse-btn" class="btn ghost">Fetch Denver 250-mile market</button>
             <button type="button" id="save-btn" class="btn">Save all changes</button>
           </div>
         </div>
 
         <div class="card">
-          <h1>Vehicle notes</h1>
+          <h1>This unit</h1>
+          <label>Intent
+            <select id="vehicle-intent">
+              <option value="sell">Selling ours</option>
+              <option value="buy">Watching to buy</option>
+            </select>
+          </label>
+          <label>Listing status
+            <select id="owned-status">
+              <option value="preparing">Not listed yet</option>
+              <option value="listed">Listed</option>
+              <option value="sold">Sold</option>
+            </select>
+          </label>
+          <div class="grid">
+            <label>Our ask<input id="owned-ask" type="number" step="100" /></label>
+            <label>Target<input id="owned-target" type="number" step="100" /></label>
+            <label>Listed on<input id="owned-listed" type="date" /></label>
+            <label>Our miles<input id="owned-miles" type="number" /></label>
+            <label>Our hours<input id="owned-hours" type="number" /></label>
+            <label>Sold price<input id="owned-sold" type="number" step="100" /></label>
+            <label>Sold on<input id="owned-sold-on" type="date" /></label>
+          </div>
+          <label>Condition<input id="owned-condition" type="text" /></label>
+          <label>Listing URL<input id="owned-url" type="url" /></label>
+          <label>Our notes<textarea id="owned-notes" rows="3"></textarea></label>
           <label>Summary<textarea id="vehicle-summary" rows="3"></textarea></label>
           <label>Private / desk notes<textarea id="vehicle-notes" rows="3"></textarea></label>
         </div>
@@ -72,8 +97,10 @@ import '../../styles/global.css';
             <label>Low ask<input id="snap-low" type="number" step="100" /></label>
             <label>High ask<input id="snap-high" type="number" step="100" /></label>
             <label>Sold median<input id="snap-sold" type="number" step="100" /></label>
-            <label>Listing count<input id="snap-count" type="number" step="1" /></label>
-            <label>Days on market<input id="snap-dom" type="number" step="1" /></label>
+            <label>Sold count<input id="snap-sold-count" type="number" step="1" /></label>
+            <label>Current asking listings<input id="snap-count" type="number" step="1" /></label>
+            <label>Days currently listed (median)<input id="snap-dom" type="number" step="1" /></label>
+            <label>Days listed before sale (median)<input id="snap-days-to-sale" type="number" step="1" /></label>
             <label>Sentiment score (−100 to 100)<input id="snap-score" type="number" step="1" /></label>
             <label>Sentiment
               <select id="snap-sentiment">

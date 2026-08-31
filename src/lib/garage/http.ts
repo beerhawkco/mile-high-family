@@ -6,8 +6,9 @@ import {
   readSession,
   signSession,
 } from './auth.ts';
-import { carryForwardPulse, parseStore, publicStore, todayStamp } from './store.ts';
-import { VEHICLE_IDS, type GarageStore, type VehicleId } from './types.ts';
+import { applyDailyPulse } from './pulse.ts';
+import { parseStore, todayStamp } from './store.ts';
+import type { GarageStore } from './types.ts';
 
 export type GarageRuntime = {
   adminUser: string;
@@ -45,10 +46,6 @@ export async function handleGarageRequest(request: Request, runtime: GarageRunti
   const url = new URL(request.url);
   const path = url.pathname.replace(/\/$/, '') || '/';
   const secure = url.protocol === 'https:';
-
-  if (path === '/api/garage/public' && request.method === 'GET') {
-    return json(publicStore(await runtime.load()));
-  }
 
   if (path === '/api/garage/session' && request.method === 'GET') {
     const session = await requireUser(request, runtime);
@@ -95,16 +92,9 @@ export async function handleGarageRequest(request: Request, runtime: GarageRunti
     if (!(await requireUser(request, runtime))) return error('Sign in first.', 401);
     const body = await bodyOf(request);
     const date = typeof body.date === 'string' && body.date ? body.date : todayStamp();
-    let store = await runtime.load();
-    for (const id of VEHICLE_IDS) {
-      store = carryForwardPulse(store, id as VehicleId, date, {
-        source: 'auto',
-        needsReview: true,
-        headline: `Carried forward to ${date} — edit the numbers`,
-      });
-    }
+    const { store, notes } = await applyDailyPulse(await runtime.load(), date);
     await runtime.save(store);
-    return json(store);
+    return json({ store, notes });
   }
 
   return error('Not found.', 404);

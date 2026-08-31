@@ -71,8 +71,10 @@ function blankSnapshot(vehicleId: VehicleId, date: string): Snapshot {
     askingHigh: 0,
     askingMedian: 0,
     soldMedian: null,
+    soldCount: 0,
     listingCount: 0,
     daysOnMarket: 0,
+    medianDaysToSale: null,
     sentiment: 'warm',
     sentimentScore: 0,
     trend: 'flat',
@@ -108,8 +110,10 @@ function collectSnapshot(): Snapshot {
     askingHigh: numberValue('snap-high'),
     askingMedian: numberValue('snap-median'),
     soldMedian: optionalNumber('snap-sold'),
+    soldCount: numberValue('snap-sold-count'),
     listingCount: numberValue('snap-count'),
     daysOnMarket: numberValue('snap-dom'),
+    medianDaysToSale: optionalNumber('snap-days-to-sale'),
     sentiment: input('snap-sentiment').value as Snapshot['sentiment'],
     sentimentScore: numberValue('snap-score'),
     trend: input('snap-trend').value as Snapshot['trend'],
@@ -124,8 +128,23 @@ function collectVehicle(): Vehicle {
   const vehicle = currentVehicle();
   return {
     ...vehicle,
+    intent: input('vehicle-intent').value as Vehicle['intent'],
     summary: input('vehicle-summary').value.trim(),
     notes: input('vehicle-notes').value.trim(),
+    owned: {
+      ...vehicle.owned,
+      status: input('owned-status').value as Vehicle['owned']['status'],
+      askingPrice: optionalNumber('owned-ask'),
+      targetPrice: optionalNumber('owned-target'),
+      listedOn: input('owned-listed').value,
+      miles: optionalNumber('owned-miles'),
+      hours: optionalNumber('owned-hours'),
+      condition: input('owned-condition').value.trim(),
+      listingUrl: input('owned-url').value.trim(),
+      soldPrice: optionalNumber('owned-sold'),
+      soldOn: input('owned-sold-on').value,
+      notes: input('owned-notes').value.trim(),
+    },
   };
 }
 
@@ -180,8 +199,10 @@ function fillSnapshot(snapshot: Snapshot | null) {
   input('snap-low').value = snapshot ? String(snapshot.askingLow) : '';
   input('snap-high').value = snapshot ? String(snapshot.askingHigh) : '';
   input('snap-sold').value = snapshot?.soldMedian == null ? '' : String(snapshot.soldMedian);
+  input('snap-sold-count').value = snapshot ? String(snapshot.soldCount) : '';
   input('snap-count').value = snapshot ? String(snapshot.listingCount) : '';
   input('snap-dom').value = snapshot ? String(snapshot.daysOnMarket) : '';
+  input('snap-days-to-sale').value = snapshot?.medianDaysToSale == null ? '' : String(snapshot.medianDaysToSale);
   input('snap-score').value = snapshot ? String(snapshot.sentimentScore) : '0';
   input('snap-sentiment').value = snapshot?.sentiment ?? 'warm';
   input('snap-trend').value = snapshot?.trend ?? 'flat';
@@ -209,6 +230,8 @@ function renderComps() {
           <label>Price<input data-field="price" type="number" value="${comp.price}" /></label>
           <label>Miles<input data-field="miles" type="number" value="${comp.miles ?? ''}" /></label>
           <label>Hours<input data-field="hours" type="number" value="${comp.hours ?? ''}" /></label>
+          <label>Sold price<input data-field="soldPrice" type="number" value="${comp.soldPrice ?? ''}" /></label>
+          <label>Days listed before sale<input data-field="daysListed" type="number" value="${comp.daysListed ?? ''}" /></label>
           <label>Listed<input data-field="listedOn" type="date" value="${comp.listedOn}" /></label>
           <label>Status
             <select data-field="status">
@@ -283,6 +306,8 @@ function readComp(article: HTMLElement, vehicleId: VehicleId): Comp {
     price: Number(get('price')) || 0,
     miles: miles === '' ? null : Number(miles),
     hours: hours === '' ? null : Number(hours),
+    soldPrice: get('soldPrice') === '' ? null : Number(get('soldPrice')),
+    daysListed: get('daysListed') === '' ? null : Number(get('daysListed')),
     location: get('location').trim(),
     condition: get('condition').trim(),
     source: get('source').trim(),
@@ -323,8 +348,20 @@ function collectLists(store: GarageStore) {
 function renderAll() {
   if (!state.store || !state.vehicleId) return;
   const vehicle = currentVehicle();
+  input('vehicle-intent').value = vehicle.intent;
   input('vehicle-summary').value = vehicle.summary;
   input('vehicle-notes').value = vehicle.notes;
+  input('owned-status').value = vehicle.owned.status;
+  input('owned-ask').value = vehicle.owned.askingPrice == null ? '' : String(vehicle.owned.askingPrice);
+  input('owned-target').value = vehicle.owned.targetPrice == null ? '' : String(vehicle.owned.targetPrice);
+  input('owned-listed').value = vehicle.owned.listedOn;
+  input('owned-miles').value = vehicle.owned.miles == null ? '' : String(vehicle.owned.miles);
+  input('owned-hours').value = vehicle.owned.hours == null ? '' : String(vehicle.owned.hours);
+  input('owned-condition').value = vehicle.owned.condition;
+  input('owned-url').value = vehicle.owned.listingUrl;
+  input('owned-sold').value = vehicle.owned.soldPrice == null ? '' : String(vehicle.owned.soldPrice);
+  input('owned-sold-on').value = vehicle.owned.soldOn;
+  input('owned-notes').value = vehicle.owned.notes;
   const date = input('snap-date').value || todayStamp();
   const snapshot =
     state.store.snapshots.find((item) => item.vehicleId === vehicle.id && item.date === date) ??
@@ -398,13 +435,17 @@ async function save() {
 }
 
 async function pulse() {
-  setStatus('Carrying yesterday forward…', 'busy');
+    setStatus('Fetching the Denver 250-mile market…', 'busy');
   try {
     stashEdits();
-    state.store = parseStore(await api('/api/garage/pulse', { method: 'POST', body: JSON.stringify({}) }));
+    const data = (await api('/api/garage/pulse', { method: 'POST', body: JSON.stringify({}) })) as {
+      store?: unknown;
+      notes?: string[];
+    };
+    state.store = parseStore(data.store ?? data);
     input('snap-date').value = todayStamp();
     renderAll();
-    setStatus('Today’s pulse is ready. Edit the numbers, then save.');
+    setStatus((data.notes ?? []).join(' ') || 'Denver market updated. Review, then save.');
   } catch (err) {
     setStatus(err instanceof Error ? err.message : 'Pulse failed.', 'err');
   }
@@ -426,6 +467,8 @@ function addComp() {
     source: '',
     url: '',
     listedOn: todayStamp(),
+    daysListed: null,
+    soldPrice: null,
     status: 'active',
     notes: '',
   });
