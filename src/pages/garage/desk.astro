@@ -1,0 +1,259 @@
+---
+import '../../styles/global.css';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Garage desk</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&family=Outfit:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="desk">
+    <main class="wrap">
+      <p class="mark">Garage desk</p>
+      <p class="sub">Username and password. No GitHub token.</p>
+      <p id="status" data-kind="ok">Locked.</p>
+
+      <section id="login-panel" class="card">
+        <h1>Sign in</h1>
+        <p class="help">
+          This is a normal admin login. You will never be asked for a personal access token here.
+        </p>
+        <form id="login-form">
+          <label class="hp">Leave blank<input id="website" name="website" tabindex="-1" autocomplete="off" /></label>
+          <label>Username<input id="username" type="text" autocomplete="username" required /></label>
+          <label>Password<input id="password" type="password" autocomplete="current-password" required /></label>
+          <button type="submit" class="btn">Sign in</button>
+        </form>
+      </section>
+
+      <section id="app-panel" class="hidden">
+        <div class="toolbar">
+          <a class="btn ghost" href="/garage/">Public garage</a>
+          <button type="button" id="logout-btn" class="btn ghost">Sign out</button>
+        </div>
+
+        <div class="card">
+          <div class="row">
+            <h1>Today’s pulse</h1>
+            <p id="signed-in" class="help"></p>
+          </div>
+          <label>Vehicle
+            <select id="vehicle"></select>
+          </label>
+          <div class="toolbar">
+            <button type="button" id="pulse-btn" class="btn ghost">Carry yesterday forward</button>
+            <button type="button" id="save-btn" class="btn">Save all changes</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h1>Vehicle notes</h1>
+          <label>Summary<textarea id="vehicle-summary" rows="3"></textarea></label>
+          <label>Private / desk notes<textarea id="vehicle-notes" rows="3"></textarea></label>
+        </div>
+
+        <div class="card">
+          <h1>Market snapshot</h1>
+          <div class="grid">
+            <label>Date<input id="snap-date" type="date" /></label>
+            <label>Median ask<input id="snap-median" type="number" step="100" /></label>
+            <label>Low ask<input id="snap-low" type="number" step="100" /></label>
+            <label>High ask<input id="snap-high" type="number" step="100" /></label>
+            <label>Sold median<input id="snap-sold" type="number" step="100" /></label>
+            <label>Listing count<input id="snap-count" type="number" step="1" /></label>
+            <label>Days on market<input id="snap-dom" type="number" step="1" /></label>
+            <label>Sentiment score (−100 to 100)<input id="snap-score" type="number" step="1" /></label>
+            <label>Sentiment
+              <select id="snap-sentiment">
+                <option value="hot">Hot</option>
+                <option value="warm">Warm</option>
+                <option value="cool">Cool</option>
+                <option value="cold">Cold</option>
+              </select>
+            </label>
+            <label>Trend
+              <select id="snap-trend">
+                <option value="up">Up</option>
+                <option value="flat">Flat</option>
+                <option value="down">Down</option>
+              </select>
+            </label>
+          </div>
+          <label>Headline<input id="snap-headline" type="text" /></label>
+          <label>Brief<textarea id="snap-brief" rows="4"></textarea></label>
+          <label class="check"><input id="snap-review" type="checkbox" /> Needs review</label>
+        </div>
+
+        <div class="card">
+          <div class="row">
+            <h1>Comps</h1>
+            <button type="button" id="add-comp" class="btn ghost">Add comp</button>
+          </div>
+          <div id="comp-list" class="list"></div>
+        </div>
+
+        <div class="card">
+          <div class="row">
+            <h1>Sentiment notes</h1>
+            <button type="button" id="add-note" class="btn ghost">Add note</button>
+          </div>
+          <div id="note-list" class="list"></div>
+        </div>
+      </section>
+    </main>
+    <script>
+      import { boot } from '../../lib/garage/desk';
+      boot();
+    </script>
+  </body>
+</html>
+
+<style>
+  .desk {
+    min-height: 100vh;
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+  }
+  .wrap {
+    max-width: 52rem;
+    margin: 0 auto;
+    padding: 1.5rem 1.1rem 4rem;
+  }
+  .mark {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #e87820;
+  }
+  .sub,
+  .help {
+    color: var(--muted);
+    line-height: 1.45;
+  }
+  .card {
+    margin-top: 1.25rem;
+    padding: 1.2rem;
+    border-radius: 1.6rem;
+    background: var(--surface);
+    box-shadow: 0 10px 0 rgb(27 22 56 / 0.06);
+  }
+  h1 {
+    margin: 0 0 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+  }
+  label {
+    display: block;
+    margin: 0.85rem 0;
+    font-weight: 800;
+  }
+  input,
+  select,
+  textarea {
+    display: block;
+    width: 100%;
+    margin-top: 0.35rem;
+    padding: 0.75rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--bg);
+    color: var(--ink);
+    font: inherit;
+  }
+  .check {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 700;
+  }
+  .check input {
+    width: auto;
+    margin: 0;
+  }
+  .btn {
+    border: 0;
+    border-radius: 999px;
+    padding: 0.8rem 1.15rem;
+    background: #f0a01a;
+    color: #1b1638;
+    font-weight: 800;
+    font-family: var(--font-display);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn.ghost {
+    background: var(--chip);
+    color: var(--ink);
+  }
+  .btn.danger {
+    background: #8b2e2e;
+    color: #fffdf8;
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 0.8rem 0;
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: baseline;
+  }
+  .grid {
+    display: grid;
+    gap: 0 1rem;
+    grid-template-columns: 1fr 1fr;
+  }
+  @media (max-width: 700px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .list {
+    display: grid;
+    gap: 0.85rem;
+  }
+  .item {
+    padding: 0.85rem;
+    border-radius: 1.1rem;
+    background: var(--chip);
+  }
+  #status {
+    margin: 1rem 0 0;
+    font-weight: 700;
+  }
+  #status[data-kind='err'] {
+    color: #8b2e2e;
+  }
+  #status[data-kind='busy'] {
+    color: #e87820;
+  }
+  .hidden {
+    display: none !important;
+  }
+  .hp {
+    position: absolute;
+    left: -9999px;
+    height: 0;
+    overflow: hidden;
+  }
+</style>

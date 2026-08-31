@@ -3,4 +3,6 @@ Disallow: /cairn
 Disallow: /cairn/
 Disallow: /campfire
 Disallow: /campfire/
+Disallow: /garage/desk
+Disallow: /garage/desk/
 Allow: /

@@ -1,0 +1,122 @@
+---
+import Sparkline from "../../components/garage/Sparkline.astro";
+import Squiggle from "../../components/Squiggle.astro";
+import WaveEdge from "../../components/WaveEdge.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { loadBuiltStore } from "../../lib/garage/load";
+import { KIND_LABEL, prettyDate, TONE_LABEL, TREND_LABEL } from "../../lib/garage/labels";
+import { dollars, signedDollars } from "../../lib/garage/money";
+import { changeVs, latestSnapshot, previousSnapshot, snapshotsFor, weekAgoSnapshot } from "../../lib/garage/store";
+
+const store = loadBuiltStore();
+const cards = store.vehicles.map((vehicle) => {
+  const latest = latestSnapshot(store, vehicle.id);
+  const previous = previousSnapshot(store, vehicle.id);
+  const weekAgo = weekAgoSnapshot(store, vehicle.id);
+  const history = snapshotsFor(store, vehicle.id);
+  return {
+    vehicle,
+    latest,
+    dayChange: latest ? changeVs(latest.askingMedian, previous?.askingMedian) : null,
+    weekChange: latest ? changeVs(latest.askingMedian, weekAgo?.askingMedian) : null,
+    history,
+  };
+});
+const asOf = cards.map((card) => card.latest?.date).filter(Boolean).sort().at(-1) ?? store.updatedAt.slice(0, 10);
+---
+
+<BaseLayout
+  title="Garage"
+  description="Daily market pulse for a 2019 Thor Majestic 28A and a 2024 Tesla Model Y Long Range — trends, sentiment, and comps."
+>
+  <section class="relative overflow-hidden text-white bg-hero">
+    <div class="blob -left-16 top-6 size-64 bg-sun/55"></div>
+    <div class="blob blob-2 -right-10 bottom-0 size-72 bg-cream/25"></div>
+    <div class="relative mx-auto max-w-6xl px-5 py-16 md:py-20">
+      <p class="font-extrabold uppercase tracking-[0.22em] text-sun -rotate-1">Garage</p>
+      <h1 class="mt-4 max-w-2xl -rotate-1 font-display text-[2.6rem] font-extrabold leading-[1.02] tracking-tight sm:text-6xl">
+        Two vehicles. One daily pulse.
+      </h1>
+      <Squiggle class="mt-3 text-sun -rotate-2" />
+      <p class="mt-6 max-w-xl rotate-1 text-lg leading-relaxed text-white/90">
+        Asking bands, sold prints, market mood, and comparable listings for the 2019 Thor Majestic 28A and the 2024 Tesla Model Y Long Range.
+      </p>
+      <p class="mt-4 text-sm font-bold text-cream/80">As of {prettyDate(asOf)} · starter comps, replace from the desk</p>
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <a class="btn-curve bg-sun px-6 py-3 font-display text-lg font-extrabold text-navy no-underline shadow-lg shadow-sun/20" href="/garage/desk/">
+          Admin desk
+        </a>
+        <a class="btn-curve-alt border-2 border-white/80 bg-white/10 px-6 py-3 font-display text-lg font-extrabold text-white no-underline" href="#vehicles">
+          Jump to vehicles
+        </a>
+      </div>
+    </div>
+    <WaveEdge fill="var(--bg)" variant="a" />
+  </section>
+
+  <section id="vehicles" class="bg-bg">
+    <div class="mx-auto max-w-6xl px-5 py-14">
+      <div class="max-w-xl -rotate-1">
+        <p class="eyebrow">Watchlist</p>
+        <h2 class="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink md:text-4xl">Today’s read</h2>
+      </div>
+      <div class="mt-10 grid gap-6 md:grid-cols-2">
+        {cards.map(({ vehicle, latest, dayChange, weekChange, history }, index) => (
+          <a
+            href={`/garage/${vehicle.id}/`}
+            class:list={[
+              "squash group bg-surface p-6 no-underline shadow-sm transition hover:-translate-y-1 hover:rotate-0",
+              index % 2 === 0 ? "-rotate-1" : "rotate-1",
+            ]}
+          >
+            <p class="text-sm font-extrabold uppercase tracking-wide text-sun">{KIND_LABEL[vehicle.kind]}</p>
+            <h3 class="mt-1 font-display text-3xl font-extrabold text-ink">{vehicle.name}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-muted">{latest?.headline ?? vehicle.summary}</p>
+            {latest ? (
+              <div class="mt-5 grid grid-cols-2 gap-3">
+                <div>
+                  <p class="text-xs font-extrabold uppercase tracking-wide text-muted">Median ask</p>
+                  <p class="font-display text-3xl font-extrabold text-ink">{dollars(latest.askingMedian)}</p>
+                  <p class="text-sm font-bold text-muted">
+                    Day {signedDollars(dayChange)} · week {signedDollars(weekChange)}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs font-extrabold uppercase tracking-wide text-muted">Band</p>
+                  <p class="font-display text-xl font-extrabold text-ink">
+                    {dollars(latest.askingLow)}–{dollars(latest.askingHigh)}
+                  </p>
+                  <p class="text-sm font-bold text-muted">{latest.listingCount} listings · {latest.daysOnMarket} DOM</p>
+                </div>
+              </div>
+            ) : (
+              <p class="mt-5 text-muted">No pulse yet.</p>
+            )}
+            <div class="mt-4 text-sun">
+              <Sparkline values={history.map((item) => item.askingMedian)} label={`${vehicle.shortName} asking median`} />
+            </div>
+            {latest && (
+              <p class="mt-3 text-sm font-extrabold text-ink">
+                Sentiment {TONE_LABEL[latest.sentiment]} · trend {TREND_LABEL[latest.trend]}
+              </p>
+            )}
+            <p class="mt-4 text-sm font-extrabold text-sun">Open the notebook →</p>
+          </a>
+        ))}
+      </div>
+    </div>
+    <WaveEdge fill="var(--bg2)" variant="b" />
+  </section>
+
+  <section class="bg-bg2">
+    <div class="mx-auto max-w-6xl px-5 py-14">
+      <div class="max-w-2xl rotate-1">
+        <p class="eyebrow">How this works</p>
+        <h2 class="mt-2 font-display text-3xl font-extrabold text-ink">Daily desk, not a token vault</h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Public pages read the garage notebook. The <a class="font-extrabold text-sun" href="/garage/desk/">admin desk</a> is a username and password — no GitHub personal access token in the browser. A daily job carries yesterday’s numbers forward so the date never goes stale; you edit comps, sold prints, and sentiment from the desk.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

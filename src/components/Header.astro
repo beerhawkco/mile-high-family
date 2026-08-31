@@ -4,7 +4,11 @@ import Logo from './Logo.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import TopicNav from './TopicNav.astro';
 
-const guides = [...guideList(), { path: '/about', label: 'About', eyebrow: '', blurb: '', key: 'about' as const }];
+const guides = [
+  ...guideList(),
+  { path: '/garage', label: 'Garage', eyebrow: '', blurb: '', key: 'garage' as const },
+  { path: '/about', label: 'About', eyebrow: '', blurb: '', key: 'about' as const },
+];
 const topics = topicList();
 const current = Astro.url.pathname;
 ---

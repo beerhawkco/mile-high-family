@@ -1,0 +1,190 @@
+---
+import Sparkline from "../../components/garage/Sparkline.astro";
+import Squiggle from "../../components/Squiggle.astro";
+import WaveEdge from "../../components/WaveEdge.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { COMP_LABEL, KIND_LABEL, NOTE_LABEL, prettyDate, TONE_LABEL, TREND_LABEL } from "../../lib/garage/labels";
+import { loadBuiltStore } from "../../lib/garage/load";
+import { compactNumber, dollars, hoursLabel, milesLabel, signedDollars } from "../../lib/garage/money";
+import { changeVs, compsFor, getVehicle, latestSnapshot, previousSnapshot, sentimentsFor, snapshotsFor, weekAgoSnapshot } from "../../lib/garage/store";
+
+export function getStaticPaths() {
+  const store = loadBuiltStore();
+  return store.vehicles.map((vehicle) => ({ params: { slug: vehicle.id } }));
+}
+
+const store = loadBuiltStore();
+const vehicle = getVehicle(store, Astro.params.slug ?? '');
+if (!vehicle) throw new Error('Unknown garage vehicle.');
+
+const latest = latestSnapshot(store, vehicle.id);
+const previous = previousSnapshot(store, vehicle.id);
+const weekAgo = weekAgoSnapshot(store, vehicle.id);
+const history = snapshotsFor(store, vehicle.id);
+const comps = compsFor(store, vehicle.id);
+const notes = sentimentsFor(store, vehicle.id);
+const dayChange = latest ? changeVs(latest.askingMedian, previous?.askingMedian) : null;
+const weekChange = latest ? changeVs(latest.askingMedian, weekAgo?.askingMedian) : null;
+const active = comps.filter((item) => item.status === 'active');
+const sold = comps.filter((item) => item.status === 'sold');
+---
+
+<BaseLayout title={vehicle.name} description={vehicle.summary}>
+  <section class="relative overflow-hidden text-white bg-hero">
+    <div class="blob -left-16 top-6 size-64 bg-sun/45"></div>
+    <div class="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 md:grid-cols-[1.05fr_0.95fr] md:py-20">
+      <div>
+        <p class="font-extrabold uppercase tracking-[0.22em] text-sun -rotate-1">{KIND_LABEL[vehicle.kind]}</p>
+        <h1 class="mt-4 max-w-xl -rotate-1 font-display text-[2.4rem] font-extrabold leading-[1.02] tracking-tight sm:text-5xl">
+          {vehicle.name}
+        </h1>
+        <Squiggle class="mt-3 text-sun -rotate-2" />
+        <p class="mt-6 max-w-lg rotate-1 text-lg leading-relaxed text-white/90">{vehicle.summary}</p>
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <a class="btn-curve bg-sun px-6 py-3 font-display text-lg font-extrabold text-navy no-underline" href="/garage/">
+            All vehicles
+          </a>
+          <a class="btn-curve-alt border-2 border-white/80 bg-white/10 px-6 py-3 font-display text-lg font-extrabold text-white no-underline" href="/garage/desk/">
+            Edit in desk
+          </a>
+        </div>
+      </div>
+      <figure class="relative mx-auto max-w-md rotate-2 md:mx-0 md:max-w-none">
+        <img
+          src={vehicle.hero}
+          alt={vehicle.heroAlt}
+          width="1600"
+          height="900"
+          class="photo-blob aspect-[5/4] w-full object-cover shadow-[0_18px_0_rgb(240_160_26_/_0.35)]"
+        />
+        <figcaption class="absolute bottom-6 left-8 right-10 rounded-[1.5rem_0.6rem_1.7rem_0.9rem] bg-cream/90 px-4 py-2 text-xs font-bold text-navy backdrop-blur">
+          {vehicle.heroCredit}
+        </figcaption>
+      </figure>
+    </div>
+    <WaveEdge fill="var(--bg)" variant="a" />
+  </section>
+
+  <section class="bg-bg">
+    <div class="mx-auto max-w-6xl px-5 py-14">
+      {latest ? (
+        <>
+          <div class="flex flex-wrap items-end justify-between gap-4">
+            <div class="max-w-xl -rotate-1">
+              <p class="eyebrow">Pulse · {prettyDate(latest.date)}</p>
+              <h2 class="mt-2 font-display text-3xl font-extrabold text-ink">{latest.headline}</h2>
+            </div>
+            {latest.needsReview && (
+              <p class="chip-curve bg-sun px-4 py-2 text-sm font-extrabold text-navy">Needs a desk review</p>
+            )}
+          </div>
+          <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="squash bg-surface p-5">
+              <p class="text-xs font-extrabold uppercase tracking-wide text-muted">Median ask</p>
+              <p class="mt-1 font-display text-3xl font-extrabold">{dollars(latest.askingMedian)}</p>
+              <p class="text-sm font-bold text-muted">Day {signedDollars(dayChange)} · week {signedDollars(weekChange)}</p>
+            </div>
+            <div class="squash-alt bg-surface p-5">
+              <p class="text-xs font-extrabold uppercase tracking-wide text-muted">Asking band</p>
+              <p class="mt-1 font-display text-2xl font-extrabold">{dollars(latest.askingLow)}–{dollars(latest.askingHigh)}</p>
+              <p class="text-sm font-bold text-muted">Sold median {dollars(latest.soldMedian)}</p>
+            </div>
+            <div class="squash bg-surface p-5">
+              <p class="text-xs font-extrabold uppercase tracking-wide text-muted">Listings</p>
+              <p class="mt-1 font-display text-3xl font-extrabold">{compactNumber(latest.listingCount)}</p>
+              <p class="text-sm font-bold text-muted">{latest.daysOnMarket} days on market</p>
+            </div>
+            <div class="squash-alt bg-surface p-5">
+              <p class="text-xs font-extrabold uppercase tracking-wide text-muted">Mood</p>
+              <p class="mt-1 font-display text-3xl font-extrabold">{TONE_LABEL[latest.sentiment]}</p>
+              <p class="text-sm font-bold text-muted">Score {latest.sentimentScore} · {TREND_LABEL[latest.trend]}</p>
+            </div>
+          </div>
+          <div class="mt-8 grid gap-6 md:grid-cols-[1.1fr_0.9fr]">
+            <div class="squash bg-surface p-6">
+              <p class="eyebrow">Asking median</p>
+              <div class="mt-3 text-sun">
+                <Sparkline values={history.map((item) => item.askingMedian)} label="Asking median trend" />
+              </div>
+              <p class="mt-4 leading-relaxed text-muted">{latest.brief}</p>
+            </div>
+            <div class="squash-alt bg-surface p-6">
+              <p class="eyebrow">Spec sheet</p>
+              <dl class="mt-4 space-y-2">
+                {vehicle.specs.map((spec) => (
+                  <div class="flex justify-between gap-4 text-sm">
+                    <dt class="font-extrabold text-muted">{spec.label}</dt>
+                    <dd class="font-bold text-ink">{spec.value}</dd>
+                  </div>
+                ))}
+              </dl>
+              {vehicle.notes && <p class="mt-5 text-sm leading-relaxed text-muted">{vehicle.notes}</p>}
+            </div>
+          </div>
+        </>
+      ) : (
+        <p class="text-muted">No pulse yet. Add one from the desk.</p>
+      )}
+    </div>
+    <WaveEdge fill="var(--bg2)" variant="c" />
+  </section>
+
+  <section class="bg-bg2">
+    <div class="mx-auto max-w-6xl px-5 py-14">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p class="eyebrow">Comps</p>
+          <h2 class="mt-2 font-display text-3xl font-extrabold text-ink">What else is sitting out there</h2>
+        </div>
+        <p class="text-sm font-bold text-muted">{active.length} active · {sold.length} sold</p>
+      </div>
+      <div class="mt-8 overflow-x-auto">
+        <table class="w-full min-w-[44rem] text-left text-sm">
+          <thead>
+            <tr class="text-xs font-extrabold uppercase tracking-wide text-muted">
+              <th class="pb-3 pr-4">Listing</th>
+              <th class="pb-3 pr-4">Price</th>
+              <th class="pb-3 pr-4">{vehicle.kind === 'rv' ? 'Miles / hours' : 'Miles'}</th>
+              <th class="pb-3 pr-4">Where</th>
+              <th class="pb-3">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {comps.map((comp) => (
+              <tr class="border-t border-line align-top">
+                <td class="py-3 pr-4">
+                  <p class="font-extrabold text-ink">{comp.title}</p>
+                  <p class="text-muted">{comp.condition}{comp.notes ? ` · ${comp.notes}` : ''}</p>
+                </td>
+                <td class="py-3 pr-4 font-extrabold">{dollars(comp.price)}</td>
+                <td class="py-3 pr-4 font-bold text-muted">
+                  {milesLabel(comp.miles)}
+                  {vehicle.kind === 'rv' ? ` · ${hoursLabel(comp.hours)}` : ''}
+                </td>
+                <td class="py-3 pr-4 text-muted">{comp.location}<br />{comp.source} · {prettyDate(comp.listedOn)}</td>
+                <td class="py-3 font-extrabold">{COMP_LABEL[comp.status]}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <WaveEdge fill="var(--bg)" variant="a" flip />
+  </section>
+
+  <section class="bg-bg">
+    <div class="mx-auto max-w-6xl px-5 py-14">
+      <p class="eyebrow">Sentiment</p>
+      <h2 class="mt-2 font-display text-3xl font-extrabold text-ink">What people are saying</h2>
+      <div class="mt-8 grid gap-4 md:grid-cols-2">
+        {notes.map((note, index) => (
+          <article class:list={["bg-surface p-5 shadow-sm", index % 2 === 0 ? "squash" : "squash-alt"]}>
+            <p class="text-xs font-extrabold uppercase tracking-wide text-sun">{NOTE_LABEL[note.tone]} · {prettyDate(note.date)}</p>
+            <p class="mt-1 font-extrabold text-ink">{note.source}</p>
+            <p class="mt-2 text-sm leading-relaxed text-muted">{note.summary}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
