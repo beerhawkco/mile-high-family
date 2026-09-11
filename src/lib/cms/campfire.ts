@@ -5,11 +5,10 @@ import {
   getUser,
   isConflictError,
   listCampfireFiles,
-  listPosts,
+  loadPostSummaries,
   saveCampfireFile,
   verifyToken,
   type GitHubUser,
-  type PostIndexItem,
 } from './github.ts';
 import { ideasFor, type ContentIdea } from './ideas.ts';
 import { parsePost } from './mdx.ts';
@@ -54,7 +53,6 @@ const state: {
   user: GitHubUser | null;
   openaiKey: string | null;
   mode: DeskMode;
-  posts: PostIndexItem[];
   ideas: ContentIdea[];
   rows: QueueRow[];
   current: QueueItem | null;
@@ -66,7 +64,6 @@ const state: {
   user: null,
   openaiKey: null,
   mode: 'queue',
-  posts: [],
   ideas: [],
   rows: [],
   current: null,
@@ -184,8 +181,10 @@ async function refreshAll() {
   if (!state.token) return;
   setStatus('Loading the shared queue…', 'busy');
   try {
-    const [posts, files] = await Promise.all([listPosts(state.token), listCampfireFiles(state.token)]);
-    state.posts = posts;
+    const [posts, files] = await Promise.all([
+      loadPostSummaries(state.token),
+      listCampfireFiles(state.token),
+    ]);
     state.ideas = ideasFor(new Date(), posts);
     const loaded = await Promise.all(
       files.map(async (file) => {
@@ -250,13 +249,16 @@ function renderIdeas() {
     const copy = document.createElement('div');
     const title = document.createElement('strong');
     title.textContent = idea.title;
+    const why = document.createElement('p');
+    why.className = 'idea-why';
+    why.textContent = idea.why;
     const hook = document.createElement('p');
     hook.className = 'help';
-    hook.textContent = `${idea.season}. ${idea.hook}`;
+    hook.textContent = idea.hook;
     const plats = document.createElement('p');
     plats.className = 'help';
     plats.textContent = idea.platforms.map((platform) => PLATFORM_LABELS[platform]).join(' · ');
-    copy.append(title, hook, plats);
+    copy.append(title, why, hook, plats);
     const use = document.createElement('button');
     use.type = 'button';
     use.className = 'btn';
