@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-25T17:56:39.362Z",
+  "updatedAt": "2026-09-26T17:07:53.348Z",
   "market": {
     "center": "Denver, CO",
     "radiusMiles": 250
@@ -1163,6 +1163,46 @@
       "brief": "From 3 listings for sale now. Sold prices include confirmed sales and listings that disappeared. Double-check anything that looks pulled, not sold.",
       "source": "auto",
       "needsReview": false
+    },
+    {
+      "id": "snp_thor-majestic-28a_2026-09-26",
+      "vehicleId": "thor-majestic-28a",
+      "date": "2026-09-26",
+      "askingLow": 23000,
+      "askingHigh": 38995,
+      "askingMedian": 30998,
+      "soldMedian": null,
+      "soldCount": 0,
+      "listingCount": 2,
+      "daysOnMarket": 26,
+      "medianDaysToSale": null,
+      "sentiment": "warm",
+      "sentimentScore": 0,
+      "trend": "flat",
+      "headline": "Denver prices, 250 miles of Denver, CO",
+      "brief": "From 2 listings for sale now. Sold prices include confirmed sales and listings that disappeared. Double-check anything that looks pulled, not sold.",
+      "source": "auto",
+      "needsReview": false
+    },
+    {
+      "id": "snp_tesla-model-y-lr_2026-09-26",
+      "vehicleId": "tesla-model-y-lr",
+      "date": "2026-09-26",
+      "askingLow": 35800,
+      "askingHigh": 38998,
+      "askingMedian": 37956,
+      "soldMedian": 36496,
+      "soldCount": 14,
+      "listingCount": 3,
+      "daysOnMarket": 4,
+      "medianDaysToSale": 6,
+      "sentiment": "warm",
+      "sentimentScore": 0,
+      "trend": "flat",
+      "headline": "Denver prices, 250 miles of Denver, CO",
+      "brief": "From 3 listings for sale now. Sold prices include confirmed sales and listings that disappeared. Double-check anything that looks pulled, not sold.",
+      "source": "auto",
+      "needsReview": false
     }
   ],
   "comps": [
@@ -1395,6 +1435,25 @@
       "notes": "Inferred sold or pulled after 6 days listed. Last ask 36999."
     },
     {
+      "id": "sale_7SAYGDEE1RA323806",
+      "vehicleId": "tesla-model-y-lr",
+      "title": "2024 Tesla Model Y Long Range",
+      "year": 0,
+      "price": 38000,
+      "soldPrice": 38000,
+      "miles": 35059,
+      "hours": null,
+      "location": "CENTENNIAL, CO",
+      "condition": "",
+      "source": "Capital One (left the market)",
+      "url": "https://www.capitalone.com/cars/vehicle-details/2024/Tesla/Model+Y/Long+Range/7SAYGDEE1RA323806",
+      "photo": "",
+      "listedOn": "2026-09-02",
+      "daysListed": 23,
+      "status": "sold",
+      "notes": "Inferred sold or pulled after 23 days listed. Last ask 38000."
+    },
+    {
       "id": "cmp_462231",
       "vehicleId": "thor-majestic-28a",
       "title": "2016 Majestic 28A for Sale in Timnath, Colorado",
@@ -1428,25 +1487,6 @@
       "url": "https://www.rvparkstore.com/rvs/6808650-2022-28a-majestic-for-sale-in-longmont-co",
       "photo": "",
       "listedOn": "2026-08-31",
-      "daysListed": null,
-      "status": "active",
-      "notes": ""
-    },
-    {
-      "id": "cmp_7SAYGAEE5RF102789",
-      "vehicleId": "tesla-model-y-lr",
-      "title": "2024 Tesla Model Y Long Range",
-      "year": 2024,
-      "price": 36495,
-      "soldPrice": null,
-      "miles": 29302,
-      "hours": null,
-      "location": "WHEAT RIDGE, CO",
-      "condition": "",
-      "source": "Capital One",
-      "url": "https://www.capitalone.com/cars/vehicle-details/2024/Tesla/Model+Y/Long+Range/7SAYGAEE5RF102789",
-      "photo": "",
-      "listedOn": "2026-09-01",
       "daysListed": null,
       "status": "active",
       "notes": ""
@@ -1490,23 +1530,42 @@
       "notes": ""
     },
     {
-      "id": "sale_7SAYGDEE1RA323806",
+      "id": "cmp_7SAYGDEE9RF151334",
+      "vehicleId": "tesla-model-y-lr",
+      "title": "2024 Tesla Model Y Long Range",
+      "year": 2024,
+      "price": 35800,
+      "soldPrice": null,
+      "miles": 29118,
+      "hours": null,
+      "location": "BOULDER, CO",
+      "condition": "",
+      "source": "Capital One",
+      "url": "https://www.capitalone.com/cars/vehicle-details/2024/Tesla/Model+Y/Long+Range/7SAYGDEE9RF151334",
+      "photo": "",
+      "listedOn": "2026-09-26",
+      "daysListed": null,
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "id": "sale_7SAYGAEE5RF102789",
       "vehicleId": "tesla-model-y-lr",
       "title": "2024 Tesla Model Y Long Range",
       "year": 0,
-      "price": 38000,
-      "soldPrice": 38000,
-      "miles": 35059,
+      "price": 36495,
+      "soldPrice": 36495,
+      "miles": 29302,
       "hours": null,
-      "location": "CENTENNIAL, CO",
+      "location": "WHEAT RIDGE, CO",
       "condition": "",
       "source": "Capital One (left the market)",
-      "url": "https://www.capitalone.com/cars/vehicle-details/2024/Tesla/Model+Y/Long+Range/7SAYGDEE1RA323806",
+      "url": "https://www.capitalone.com/cars/vehicle-details/2024/Tesla/Model+Y/Long+Range/7SAYGAEE5RF102789",
       "photo": "",
-      "listedOn": "2026-09-02",
-      "daysListed": 23,
+      "listedOn": "2026-09-01",
+      "daysListed": 25,
       "status": "sold",
-      "notes": "Inferred sold or pulled after 23 days listed. Last ask 38000."
+      "notes": "Inferred sold or pulled after 25 days listed. Last ask 36495."
     }
   ],
   "sentiments": [],
@@ -1522,7 +1581,7 @@
       "location": "Timnath, Colorado",
       "url": "https://www.popsells.com/rv-for-sale/2016-thor-motor-coach-majestic-28a-462231",
       "firstSeen": "2026-08-31",
-      "lastSeen": "2026-09-25",
+      "lastSeen": "2026-09-26",
       "source": "Pop Sells",
       "status": "active"
     },
@@ -1537,7 +1596,7 @@
       "location": "Longmont, CO",
       "url": "https://www.rvparkstore.com/rvs/6808650-2022-28a-majestic-for-sale-in-longmont-co",
       "firstSeen": "2026-08-31",
-      "lastSeen": "2026-09-25",
+      "lastSeen": "2026-09-26",
       "source": "RV Park Store",
       "status": "active"
     },
@@ -1612,9 +1671,9 @@
       "location": "WHEAT RIDGE, CO",
       "url": "https://www.capitalone.com/cars/vehicle-details/2024/Tesla/Model+Y/Long+Range/7SAYGAEE5RF102789",
       "firstSeen": "2026-09-01",
-      "lastSeen": "2026-09-25",
+      "lastSeen": "2026-09-26",
       "source": "Capital One",
-      "status": "active"
+      "status": "gone"
     },
     {
       "id": "lst_tesla_model_y_lr_7SAYGDEE1RA323806",
@@ -1747,7 +1806,7 @@
       "location": "COLORADO SPRINGS, CO",
       "url": "https://www.capitalone.com/cars/vehicle-details/2024/Tesla/Model+Y/Long+Range/7SAYGAEE1RF102689",
       "firstSeen": "2026-09-16",
-      "lastSeen": "2026-09-25",
+      "lastSeen": "2026-09-26",
       "source": "Capital One",
       "status": "active"
     },
@@ -1762,7 +1821,22 @@
       "location": "DENVER, CO",
       "url": "https://www.capitalone.com/cars/vehicle-details/2024/Tesla/Model+Y/Long+Range/7SAYGDEE8RA226375",
       "firstSeen": "2026-09-22",
-      "lastSeen": "2026-09-25",
+      "lastSeen": "2026-09-26",
+      "source": "Capital One",
+      "status": "active"
+    },
+    {
+      "id": "lst_tesla_model_y_lr_7SAYGDEE9RF151334",
+      "vehicleId": "tesla-model-y-lr",
+      "sourceId": "7SAYGDEE9RF151334",
+      "title": "2024 Tesla Model Y Long Range",
+      "price": 35800,
+      "miles": 29118,
+      "hours": null,
+      "location": "BOULDER, CO",
+      "url": "https://www.capitalone.com/cars/vehicle-details/2024/Tesla/Model+Y/Long+Range/7SAYGDEE9RF151334",
+      "firstSeen": "2026-09-26",
+      "lastSeen": "2026-09-26",
       "source": "Capital One",
       "status": "active"
     }
