@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-28T20:06:40.594Z",
+  "updatedAt": "2026-09-29T18:36:56.621Z",
   "market": {
     "center": "Denver, CO",
     "radiusMiles": 250
@@ -1283,6 +1283,46 @@
       "brief": "From 4 listings for sale now. Sold prices include confirmed sales and listings that disappeared. Double-check anything that looks pulled, not sold.",
       "source": "auto",
       "needsReview": false
+    },
+    {
+      "id": "snp_thor-majestic-28a_2026-09-29",
+      "vehicleId": "thor-majestic-28a",
+      "date": "2026-09-29",
+      "askingLow": 23000,
+      "askingHigh": 38995,
+      "askingMedian": 30998,
+      "soldMedian": null,
+      "soldCount": 0,
+      "listingCount": 2,
+      "daysOnMarket": 29,
+      "medianDaysToSale": null,
+      "sentiment": "warm",
+      "sentimentScore": 0,
+      "trend": "flat",
+      "headline": "Denver prices, 250 miles of Denver, CO",
+      "brief": "From 2 listings for sale now. Sold prices include confirmed sales and listings that disappeared. Double-check anything that looks pulled, not sold.",
+      "source": "auto",
+      "needsReview": false
+    },
+    {
+      "id": "snp_tesla-model-y-lr_2026-09-29",
+      "vehicleId": "tesla-model-y-lr",
+      "date": "2026-09-29",
+      "askingLow": 35800,
+      "askingHigh": 38998,
+      "askingMedian": 37477,
+      "soldMedian": 36496,
+      "soldCount": 14,
+      "listingCount": 4,
+      "daysOnMarket": 5,
+      "medianDaysToSale": 6,
+      "sentiment": "warm",
+      "sentimentScore": 0,
+      "trend": "flat",
+      "headline": "Denver prices, 250 miles of Denver, CO",
+      "brief": "From 4 listings for sale now. Sold prices include confirmed sales and listings that disappeared. Double-check anything that looks pulled, not sold.",
+      "source": "auto",
+      "needsReview": false
     }
   ],
   "comps": [
@@ -1635,7 +1675,7 @@
       "year": 2024,
       "price": 35800,
       "soldPrice": null,
-      "miles": 29118,
+      "miles": 29122,
       "hours": null,
       "location": "BOULDER, CO",
       "condition": "",
@@ -1680,7 +1720,7 @@
       "location": "Timnath, Colorado",
       "url": "https://www.popsells.com/rv-for-sale/2016-thor-motor-coach-majestic-28a-462231",
       "firstSeen": "2026-08-31",
-      "lastSeen": "2026-09-28",
+      "lastSeen": "2026-09-29",
       "source": "Pop Sells",
       "status": "active"
     },
@@ -1695,7 +1735,7 @@
       "location": "Longmont, CO",
       "url": "https://www.rvparkstore.com/rvs/6808650-2022-28a-majestic-for-sale-in-longmont-co",
       "firstSeen": "2026-08-31",
-      "lastSeen": "2026-09-28",
+      "lastSeen": "2026-09-29",
       "source": "RV Park Store",
       "status": "active"
     },
@@ -1905,7 +1945,7 @@
       "location": "COLORADO SPRINGS, CO",
       "url": "https://www.capitalone.com/cars/vehicle-details/2024/Tesla/Model+Y/Long+Range/7SAYGAEE1RF102689",
       "firstSeen": "2026-09-16",
-      "lastSeen": "2026-09-28",
+      "lastSeen": "2026-09-29",
       "source": "Capital One",
       "status": "active"
     },
@@ -1920,7 +1960,7 @@
       "location": "DENVER, CO",
       "url": "https://www.capitalone.com/cars/vehicle-details/2024/Tesla/Model+Y/Long+Range/7SAYGDEE8RA226375",
       "firstSeen": "2026-09-22",
-      "lastSeen": "2026-09-28",
+      "lastSeen": "2026-09-29",
       "source": "Capital One",
       "status": "active"
     },
@@ -1930,12 +1970,12 @@
       "sourceId": "7SAYGDEE9RF151334",
       "title": "2024 Tesla Model Y Long Range",
       "price": 35800,
-      "miles": 29118,
+      "miles": 29122,
       "hours": null,
       "location": "BOULDER, CO",
       "url": "https://www.capitalone.com/cars/vehicle-details/2024/Tesla/Model+Y/Long+Range/7SAYGDEE9RF151334",
       "firstSeen": "2026-09-26",
-      "lastSeen": "2026-09-28",
+      "lastSeen": "2026-09-29",
       "source": "Capital One",
       "status": "active"
     },
@@ -1950,7 +1990,7 @@
       "location": "LOVELAND, CO",
       "url": "https://www.capitalone.com/cars/vehicle-details/2024/Tesla/Model+Y/Long+Range/7SAYGDEE3RA261549",
       "firstSeen": "2026-09-27",
-      "lastSeen": "2026-09-28",
+      "lastSeen": "2026-09-29",
       "source": "Capital One",
       "status": "active"
     }
